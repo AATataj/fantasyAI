@@ -32,7 +32,8 @@ python3.7 as the base-language
 mysql as the database
 tensorflow for the machine learning components
 pandas for the input vector data to tensorflow
-selenium for webscraping
+selenium for 
+git for sharing to anyone interested as well as versioning control
 yahoo fantasy sports api* 
 kubernetes*
 
