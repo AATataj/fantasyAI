@@ -3,10 +3,10 @@ from team import team
 from league import league
 from matchup import matchup
 from rotoworldScraper import updateRoto
-from bballRefScrape import bballScraper
 from liveBoxScrape import scrapeScores
 import datetime
 import pdb 
+import unidecode
 
 import pathlib
 import matplotlib.pyplot as plt
@@ -26,9 +26,9 @@ print("****************")
 print("****Test Bed****")
 print("****************")
 
+print(unidecode.unidecode('Luka Dončić'))
 #updateRoto(cnx)
-#bballScraper(cnx)
-scrapeScores(cnx)
+#scrapeScores(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)

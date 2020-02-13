@@ -38,6 +38,15 @@ def updateRoto(cnx):
             playerName = elem[x].find_element_by_class_name("player-news-article__profile__name").text
             positionTeam = elem[x].find_element_by_class_name("player-news-article__profile__position").text
             articleTitle = elem[x].find_element_by_class_name("player-news-article__title").text
+            # remove jr's
+            playerName = playerName.replace('JR.', '')
+            # remove II and III
+            if (playerName != 'JOEL EMBIID'):
+                playerName = playerName.replace('II', '')
+            playerName = playerName.replace('III', '')
+            # remove periods from names
+            playerName = playerName.replace('.', '')
+            
             try:
                 articleSummary = elem[x].find_element_by_class_name("player-news-article__summary").text
             except:
@@ -89,13 +98,53 @@ def updateRoto(cnx):
     ### index the new entries here
     ###
 
+            ## note the below query will not suit our purposes when :
+            ## 2 or more players have the same name and are playing in the same season
+            ## in that case, it'll match to the younger player and ignore the older one
+            ## this case has come up 3x seperate times in previous years, but currently isn't 
+            ## an issue.  A strategy for dealing with this, would be to update our playerHashes 
+            ## table with the player's current team, and match with that data like we do 
+            ## birthdays in the boxscores, but particular attention must be paid to 
+            ## rotoworld articles that indicate player trades, as that team may change on the 
+            ## article which announces the trade
+
     query = """
             update rotoworld
-            inner join playerHashes on playerHashes.name = rotoworld.name
-            set lower(rotoworld.playerID) = lower(playerHashes.playerID)
+            inner join 
+                (select name, dob, playerID
+                from playerHashes
+                    inner join  
+                        (select name as named, max(dob) as Dateob, count(name) 
+                        from playerHashes 
+                        group by name 
+                        having max(dob)) 
+                        as list 
+                    on list.named = playerHashes.name and list.Dateob = playerHashes.dob) as joined
+            on joined.name = rotoworld.name
+            set rotoworld.playerID = joined.playerID
             where rotoworld.playerID is null
+            """
+            
+
+    cursor.execute(query)
+    cnx.commit()
+
+    # we need manual fixes for luka doncic, juancho hernangomez cuz it's never easy...
+    query = """
+            update rotoworld
+            set playerID = 1919
+            where name = 'LUKA DONCIC'
             """
     cursor.execute(query)
     cnx.commit()
+
+    query = """
+            update rotoworld
+            set playerID = 1622
+            where name = 'JUANCHO HERNANGOMEZ'
+            """
+    cursor.execute(query)
+    cnx.commit()
+
 
     driver.quit()

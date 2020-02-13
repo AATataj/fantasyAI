@@ -16,3 +16,31 @@ inner join playerHashes on lower(rotoworld.name) = lower(playerHashes.name)
 set rotoworld.playerID = playerHashes.playerID
 
 select max(date) from rotoworld
+
+update rotoworld
+inner join 
+(select name, dob, playerID
+from playerHashes
+    inner join  
+    (select name as named, max(dob) as Dateob, count(name) 
+    from playerHashes 
+    group by name 
+    having max(dob)) 
+    as list 
+on list.named = playerHashes.name and list.Dateob = playerHashes.dob) as joined
+on joined.name = rotoworld.name
+set rotoworld.playerID = joined.playerID
+where rotoworld.playerID is null
+
+
+update rotoworld
+set name = REPLACE(name, 'JR.', '')
+
+update rotoworld 
+set name = CASE WHEN name <> 'JOEL EMBIID' THEN REPLACE(name, 'II', '') ELSE 'JOEL EMBIID' END
+
+update rotoworld 
+set playerID = 1919 
+where name = 'LUKA DONCIC'
+
+bol bol, juancho hernangomez

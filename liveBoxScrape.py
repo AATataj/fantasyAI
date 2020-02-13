@@ -110,7 +110,7 @@ def scrapeScores(cnx):
             print(linebuffer)
             if linebuffer != [] : 
                 if (datetime.datetime.strptime(linebuffer[3], '%Y-%m-%d') 
-                    < datetime.datetime(maxDate[0].year, maxDate[0].month, maxDate[0].day)) :
+                    <= datetime.datetime(maxDate[0].year, maxDate[0].month, maxDate[0].day)) :
                     dateFlag = True
                     break
                 cursor.execute(query)
@@ -129,6 +129,7 @@ def scrapeScores(cnx):
     idMissingCount = cursor.fetchone()
     ## for new players with no entry:
     if idMissingCount[0] != 0 :
+        print("player not found....adding new player to playerHashes...")
         query = """
                 insert into playerHashes (name, dob) 
                 select distinct name, date_sub(date_sub(date, interval cast(substr(age, 1,2) as signed) year), 
@@ -150,14 +151,15 @@ def scrapeScores(cnx):
             delete from boxscores2
             """
     cursor.execute(query)
-    cnx.commit(0)
+    cnx.commit()
 
    
     driver.quit()
     return
 def updatePlayerIDs(cnx):
     cursor = cnx.cursor()
-    ## append playerID to new table : 
+    ## append playerID to new table :
+    print("appending playerIDs to boxscores2...") 
     query = """
             update boxscores2
             inner join playerHashes
