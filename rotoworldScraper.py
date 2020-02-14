@@ -9,6 +9,11 @@ import mysql.connector
 
 import pdb
 
+## I will have to use an intermediary table for updates before committing 
+## to the rotoworld live table to save execution time on indexing the players
+## against the playerHashes table like I already do for the boxscores.  
+## But for now, the rotoworld table is small, and thus not a huge performance hit.
+## This is a 'next season' upgrade.  
 def updateRoto(cnx):
     #get date of latest entry
     cursor = cnx.cursor()
@@ -129,8 +134,10 @@ def updateRoto(cnx):
     cursor.execute(query)
     cnx.commit()
 
-    # we need manual fixes for luka doncic, juancho hernangomez, taurean prince and jj redick cuz it's never easy...
-    # indivdual cases can be removed once the player is out of the league...
+    # we need manual fixes for luka doncic, juancho hernangomez, taurean prince and jj redick cuz 
+    # the names don't match boxscores data and it's never easy...
+    # indivdual cases can be removed once the player is out of the league.  
+    # I'm looking at you, JJ....stupid dukkies, who drafts them anyway?
     query = """
             update rotoworld
             set playerID = 1919

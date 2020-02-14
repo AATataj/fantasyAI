@@ -74,8 +74,8 @@ def scrapeScores(cnx):
             if linebuffer != []:
                 # cuz it can never be easy thanks to bball reference 
                 # deciding to do something dumb after 40 years of data
-                if unidecode.unidecode(linebuffer[0]) == 'Jokob Poltl':
-                    linebuffer[0] = 'Jokob Poeltl'
+                if unidecode.unidecode(linebuffer[0]) == 'Jakob Poltl':
+                    linebuffer[0] = 'Jakob Poeltl'
                 query = """
                         insert into boxscores2 
                         (name, age, position, date, team, homeAway, opponent, result, started, minutes,
@@ -120,7 +120,6 @@ def scrapeScores(cnx):
         next_page.click()
         print("--- NEXT PAGE ---")
         
-
     updatePlayerIDs(cnx)
     query = """
             select count(*) from boxscores2 where playerID is null
@@ -131,9 +130,13 @@ def scrapeScores(cnx):
     if idMissingCount[0] != 0 :
         print("player not found....adding new player to playerHashes...")
         query = """
-                insert into playerHashes (name, dob) 
-                select distinct name, date_sub(date_sub(date, interval cast(substr(age, 1,2) as signed) year), 
-                interval cast(substr(age, 4,3) as signed) day) as dob from boxscores2 group by name, dob;
+                insert into playerHashes (name, dob)
+                select distinct (name), 
+                    date_sub(date_sub(date, interval cast(substr(age, 1, 2) as signed) year), 
+                    interval cast(substr(age, 4, 3) as signed) day) as dob
+                from boxscores2
+                where playerID is null
+                group by name, dob
                 """
         cursor.execute(query)
         cnx.commit()
@@ -156,6 +159,7 @@ def scrapeScores(cnx):
    
     driver.quit()
     return
+
 def updatePlayerIDs(cnx):
     cursor = cnx.cursor()
     ## append playerID to new table :

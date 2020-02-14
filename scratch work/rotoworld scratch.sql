@@ -43,4 +43,11 @@ update rotoworld
 set playerID = 1919 
 where name = 'LUKA DONCIC'
 
-bol bol, juancho hernangomez
+insert into playerHashes (name, dob)
+select distinct (name), date_sub(date_sub(date, interval cast(substr(age, 1, 2) as signed) year), interval cast(substr(age, 4, 3) as signed) day) as dob
+from boxscores2
+where playerID is null
+group by name, dob
+
+ALTER TABLE playerHashes ADD PRIMARY KEY (playerID)
+ALTER TABLE playerHashes MODIFY COLUMN playerID INT auto_increment
