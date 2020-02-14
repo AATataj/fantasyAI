@@ -129,7 +129,8 @@ def updateRoto(cnx):
     cursor.execute(query)
     cnx.commit()
 
-    # we need manual fixes for luka doncic, juancho hernangomez cuz it's never easy...
+    # we need manual fixes for luka doncic, juancho hernangomez, taurean prince and jj redick cuz it's never easy...
+    # indivdual cases can be removed once the player is out of the league...
     query = """
             update rotoworld
             set playerID = 1919
@@ -142,6 +143,22 @@ def updateRoto(cnx):
             update rotoworld
             set playerID = 1622
             where name = 'JUANCHO HERNANGOMEZ'
+            """
+    cursor.execute(query)
+    cnx.commit()
+
+    query = """
+            update rotoworld
+            set playerID = 1234
+            where name = 'JJ REDICK'
+            """
+    cursor.execute(query)
+    cnx.commit()
+
+    query = """
+            update rotoworld
+            set playerID = 2815
+            where name = 'TAUREAN PRINCE'
             """
     cursor.execute(query)
     cnx.commit()

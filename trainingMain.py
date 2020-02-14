@@ -26,8 +26,7 @@ print("****************")
 print("****Test Bed****")
 print("****************")
 
-print(unidecode.unidecode('Luka Dončić'))
-#updateRoto(cnx)
+updateRoto(cnx)
 #scrapeScores(cnx)
 
 """teamname=None
