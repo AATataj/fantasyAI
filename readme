@@ -17,24 +17,3 @@ As a bonus, I'm considering setting up my own kubernetes cluster to aid in some 
 data crunching operations this will have to do. Utilizing an old PS3 I've converted into a linux 
 box.
 
---------
-Current state : 
--I've set up and tested the 'league' functionality. A collection of team objects, matchups, schedule,
-as well as the rules for determining the winners of the weekly matchups and the league overall.
--I've scraped the data required and set up the database, as well as indexed the data so it can be used
-programmatically.  Also created a pair of web scrapers that should continue to update the databases with
-new data as it's generated hands free (or as long as my upstream data creators don't change their websites)
--In the 'scratch' folder you can find a bunch of one-off queries used for setting up my tables, as well as 
-some of the scraped source data
---------
-Technology used :
-python3.7 as the base-language
-mysql as the database
-tensorflow for the machine learning components
-pandas for the input vector data to tensorflow
-selenium for web scraping
-git for sharing to anyone interested as well as versioning control
-yahoo fantasy sports api* 
-kubernetes*
-
-* to be added soon
