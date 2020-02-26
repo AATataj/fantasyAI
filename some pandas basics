@@ -20,6 +20,8 @@ df = pd.read_csv('csvname.csv')
 df = pd.read_json('filename')
 ******df = pd.read_sql_query('SELECT * FROM ....', cnx)
 
-    
+create sql table from pandas dataframe:
+
+cursor.execute(CREATE TABLE {1} ({2})".format(db, tbl_name, tbl_cols_sql))
 
 
