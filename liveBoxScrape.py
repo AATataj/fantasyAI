@@ -76,6 +76,8 @@ def scrapeScores(cnx):
                 # deciding to do something dumb after 40 years of data
                 if unidecode.unidecode(linebuffer[0]) == 'Jakob Poltl':
                     linebuffer[0] = 'Jakob Poeltl'
+                if unidecode.unidecode(linebuffer[0]) == 'P.J. Washington':
+                    linebuffer[0] = 'PJ Washington'
                 query = """
                         insert into boxscores2 
                         (name, age, position, date, team, homeAway, opponent, result, started, minutes,

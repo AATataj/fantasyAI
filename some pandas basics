@@ -1,0 +1,25 @@
+some pandas basics :
+
+initialize dataframe via hardcoding :
+dictionary 'data' = {
+                    'featurename1' : [ list of values for the feature from each boxscore row] 
+                    'featurename2' : [same as above for next feature]
+                    ...
+                    }
+
+featuresDataframe = pd.DataFrame(data)
+
+featuresDataframe = pd.DataFrame(data, index=[ list of playerIDs corresponding to each boxscore row]) 
+^^^^ index won't be unique, is this legal syntax?  ---> yes
+
+accessing a particular dataframe :
+featuresDataframe.loc[playerID]
+
+reading from files : 
+df = pd.read_csv('csvname.csv')
+df = pd.read_json('filename')
+******df = pd.read_sql_query('SELECT * FROM ....', cnx)
+
+    
+
+

@@ -51,3 +51,4 @@ group by name, dob
 
 ALTER TABLE playerHashes ADD PRIMARY KEY (playerID)
 ALTER TABLE playerHashes MODIFY COLUMN playerID INT auto_increment
+

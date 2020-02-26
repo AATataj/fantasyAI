@@ -1,67 +1,39 @@
 import mysql.connector
 import datetime
+import pdb
 
-def careerAverages(player, date, cursor):
-    query = """
-            select sum(pts)/count(*) as ppg, sum(trb)/count(*) as rpg, sum(3fgm)/count(*) as 3pg, sum(ast)/count(*) as apg
-                   sum(stl)/count(*) as spg, sum(blk)/count(*) as bpg, sum(tov)/count(*) as topg, 
-                   sum(fgm)/sum(fga) as fgPer, sum(ftm)/sum(fta) as ftPer
-            from boxscores
-            where playerID = {0} and date < {1}
-            """.format(player, date)
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
+import pathlib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-def monthAverages(player, date, cursor):
-    query = """
-            select sum(pts)/count(*) as ppg, sum(trb)/count(*) as rpg, sum(3fgm)/count(*) as 3pg, sum(ast)/count(*) as apg
-                   sum(stl)/count(*) as spg, sum(blk)/count(*) as bpg, sum(tov)/count(*) as topg, 
-                   sum(fgm)/sum(fga) as fgPer, sum(ftm)/sum(fta) as ftPer
-            from boxscores
-            where playerID = {0} and date < {1} and date > {2}
-            """.format(player, date, date - timedelta(months=1))
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
+## this file is meant to be an example of utilizing 
+## pandas to calculate my day-by-day feature vectors via pandas.dataFrame()
+## I will not be listing all the calculated features here as it will be 
+## awfully redundant, as well as giving away all my best ideas publicly
 
-def weekAverages(player, date, cursor):
-    query = """
-            select sum(pts)/count(*) as ppg, sum(trb)/count(*) as rpg, sum(3fgm)/count(*) as 3pg, sum(ast)/count(*) as apg
-                   sum(stl)/count(*) as spg, sum(blk)/count(*) as bpg, sum(tov)/count(*) as topg, 
-                   sum(fgm)/sum(fga) as fgPer, sum(ftm)/sum(fta) as ftPer
-            from boxscores
-            where playerID = {0} and date < {1} and date > {2}
-            """.format(player, date, date - timedelta(weeks=1))
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
+def pointsVector(cnx):
+        ## necessary data for calculated features
+        dataFrame = pd.read_sql_query("select name, playerID from boxscores limit 20", cnx)
+        series = pd.read_sql_query("select date from boxscores limit 20", cnx)
+        pointsSeries = pd.read_sql_query("select pts from boxscores limit 20", cnx)
+        ## build basic dataframe
+        dataFrame2 = pd.concat([dataFrame, series, pointsSeries], axis = 1)
 
-###########################################
-#single category queries
-###########################################
-def careerPtsAvg(player, date, cursor):
-    query = """
-            select sum(pts) / count(pts) from boxscores where playerID = {0} and date < {1} and minutes > 0
-            """.format(player, date)
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
+        avg7Days = pd.Series()
+        #calculate features for each player/date
+        for row in range(len(dataFrame2)):
+                query = """
+                        select avg(pts)
+                        from boxscores
+                        where playerID = {0}
+                        and date < '{1}'
+                        and date >= date_sub('{1}', interval 7 day) 
+                        """.format(dataFrame2.loc[row, 'playerID'], dataFrame2.loc[row, 'date'])
+                data = pd.read_sql_query(query, cnx)
+                ## append calculated feature value to new feature series
+                avg7Days = avg7Days.append(data.loc[0], ignore_index=True)
 
-def monthPtsAvg (player, date, cursor):
-    query = """
-            select sum(pts) / count(pts) from boxscores where playerID = {0} and date < {1} and date > {2} 
-            and minutes > 0
-            """.format(player, date, date - timedelta(months=1))
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
-
-def weekPtsAvg (player, date, cursor):
-    query = """
-            select sum(pts) / count(pts) from boxscores where playerID = {0} and date < {1} and date > {2} 
-            and minutes > 0
-            """.format(player, date, date - timedelta(weeks=1))
-    cursor.execute(query)
-    result = cursor.fetchone()
-    return result
+        ## append calculated feature series to basic dataframe
+        dataFrame2['ptsAvg7Days'] = avg7Days
+        print (dataFrame2.head())

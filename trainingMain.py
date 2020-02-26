@@ -5,6 +5,7 @@ from matchup import matchup
 from rotoworldScraper import updateRoto
 from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
+from features import pointsVector
 import datetime
 import pdb 
 import unidecode
@@ -29,7 +30,8 @@ print("****************")
 
 #updateRoto(cnx)
 #scrapeScores(cnx)
-updatePlayerIDs(cnx)
+
+pointsVector(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)

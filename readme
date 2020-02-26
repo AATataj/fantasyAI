@@ -14,8 +14,9 @@ from the playernotes data.
 Finally, plug the trained model into the yahoo fantasy sports API to control the live version.
 
 As a bonus, I'm considering setting up my own kubernetes cluster to aid in some of the larger
-data crunching operations this will have to do. Utilizing an old PS3 I've converted into a linux 
-box.
+data crunching operations this will have to do. Utilizing an old PS3 I'll convert into a linux 
+box.  (EDIT : evidently, Sony took away this feature of the ps3 in 2010.  It's still possible
+but much more difficult to do now)
 
 --------
 Current state : 
