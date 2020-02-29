@@ -32,22 +32,28 @@ def addNewFeature(featureName,featureQuery, cnx):
                 from boxscores limit 20
                 """
         dataFrame = pd.read_sql_query(query, cnx)
-        newFeature = pd.Series()
         
+        avg7Days = pd.Series()
+        ##calculate features for each player/date
+        for row in range(len(dataFrame)):
+                query = """
+                        select avg(pts)
+                        from boxscores
+                        where playerID = {0}
+                        and date < '{1}'
+                        and date >= date_sub('{1}', interval 7 day) 
+                        """.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
+                data = pd.read_sql_query(query, cnx)
+                ## append calculated feature value to new feature series
+                avg7Days = avg7Days.append(data.loc[0], ignore_index=True)
+
+        ## append calculated feature series to basic dataframe
+        dataFrame['ptsAvg7Days'] = avg7Days
+
         ## cast date column to a datetime object
         dataFrame['date'] = pd.to_datetime(dataFrame['date'], format = '%Y-%m-%d')
         
-        ## run the queries to calculate the new feature set
-        for row in range(len(dataFrame)):
-                query = featureQuery.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
-                data = pd.read_sql_query(query, cnx)
-                ## append calculated feature value to new feature series
-                newFeature = newFeature.append(data.loc[0], ignore_index=True)
-        
-        ## remove me after testing!!
-        cursor.execute("alter table inputvectors drop column ptsAvg7Days")
-        ## /remove
-        
+        cursor.execute("drop table inputvectors")
         colNames = []
         colTypes = []
         for col in dataFrame.columns:
@@ -61,8 +67,7 @@ def addNewFeature(featureName,featureQuery, cnx):
                 if dataFrame[col].dtype == 'float64':
                         colTypes.append('decimal(7,4)')
 
-        # create the table inputvectors based on the newly compiled dataframe
-        # will be removed after the full thing is created        
+        # create the table inputvectors based on the newly compiled dataframe        
         query = """
                         create table inputvectors ( 
                         `index` int 
@@ -73,11 +78,13 @@ def addNewFeature(featureName,featureQuery, cnx):
         query = query[:-1]
         query += ', primary key (`index`))'
         cursor.execute(query)
-        # /remove
         
         ## inputvectors input, tried to remove the need to load sqlAlchemy
         ## library, but the to_sql function seems to play favorites
         dataFrame.to_sql(name='inputvectors',index=False, con=con, if_exists='append')
+
+        ## let's see if I can create a new dataframe with a single new column and input it into
+        ## inputvectors table
         
         query = """
                 alter table inputvectors
@@ -89,16 +96,29 @@ def addNewFeature(featureName,featureQuery, cnx):
                 """
         dataFrame = pd.read_sql_query(query, cnx)
 
+        avg14Days = pd.Series()
+        for row in range(len(dataFrame)):
+                query = """
+                        select avg(pts)
+                        from boxscores
+                        where playerID = {0}
+                        and date < '{1}'
+                        and date >= date_sub('{1}', interval 14 day) 
+                        """.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
+                data = pd.read_sql_query(query, cnx)
+                ## append calculated feature value to new feature series
+                avg14Days = avg14Days.append(data.loc[0], ignore_index=True)
+        #meta = MetaData(engine)
+        #theTable = Table('inputvectors', meta, autoload=True)
         
-        
-        print(newFeature.array)
+        print(avg14Days.array)
         query = ''
-        for i in range(len(newFeature.array)):
+        for i in range(len(avg14Days.array)):
                 query += """
                         update inputvectors
                         set {0} = {1}
                         where `index` = {2};
-                        """.format(featureName, newFeature[i], i+1)
+                        """.format(featureName, avg14Days[i], i+1)
         ## why do I need a loop in an execute multi=True call?
         ## it's stupid, that's why
         for result in cursor.execute(query, multi=True):

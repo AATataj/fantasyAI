@@ -5,7 +5,7 @@ from matchup import matchup
 from rotoworldScraper import updateRoto
 from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
-from features import pointsVector
+from features import addNewFeature
 import datetime
 import pdb 
 import unidecode
@@ -31,7 +31,14 @@ print("****************")
 #updateRoto(cnx)
 #scrapeScores(cnx)
 
-pointsVector(cnx)
+featureQuery = """
+                select AVG(pts)
+                from boxscores
+                where playerID = {0}
+                and date < '{1}'
+                and date >= date_sub('{1}', interval 14 day)
+               """
+addNewFeature('ptsAvg14Days', featureQuery, cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)
