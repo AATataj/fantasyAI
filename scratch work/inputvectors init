@@ -1,0 +1,6 @@
+create table inputvectors (
+    `index` int not null auto_increment, name varchar(150), date date, playerID int,
+    primary key(`index`))
+
+insert into inputvectors (name, date, playerID) 
+select name, date, playerID from boxscores limit 20

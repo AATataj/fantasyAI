@@ -26,16 +26,21 @@ def addNewFeature(featureName,featureQuery, cnx):
         con = engine.connect()
         
         ## necessary data for calculated features
+        #query = """
+                #select name, playerID, date,
+                #fgPer, ftPer, 3fgm, pts, trb, ast, stl, blk, tov   
+                #from boxscores limit 20
+                #"""
         query = """
-                select name, playerID, date,
-                fgPer, ftPer, 3fgm, pts, trb, ast, stl, blk, tov   
-                from boxscores limit 20
+                select name, date, playerID from inputvectors
                 """
         dataFrame = pd.read_sql_query(query, cnx)
-        newFeature = pd.Series()
-        
         ## cast date column to a datetime object
         dataFrame['date'] = pd.to_datetime(dataFrame['date'], format = '%Y-%m-%d')
+
+        #dataFrame = pd.read_sql_query(query, cnx)
+        newFeature = pd.Series()
+        
         
         ## run the queries to calculate the new feature set
         for row in range(len(dataFrame)):
@@ -45,50 +50,15 @@ def addNewFeature(featureName,featureQuery, cnx):
                 newFeature = newFeature.append(data.loc[0], ignore_index=True)
         
         ## remove me after testing!!
-        cursor.execute("alter table inputvectors drop column ptsAvg7Days")
+        #cursor.execute("alter table inputvectors drop column {0}}".format(featureName))
         ## /remove
         
-        colNames = []
-        colTypes = []
-        for col in dataFrame.columns:
-                colNames.append(col)
-                if dataFrame[col].dtype == 'object':
-                        colTypes.append('varchar(150)')
-                if dataFrame[col].dtype == 'int64':
-                        colTypes.append('int')
-                if dataFrame[col].dtype == 'datetime64[ns]':
-                        colTypes.append('date')
-                if dataFrame[col].dtype == 'float64':
-                        colTypes.append('decimal(7,4)')
-
-        # create the table inputvectors based on the newly compiled dataframe
-        # will be removed after the full thing is created        
-        query = """
-                        create table inputvectors ( 
-                        `index` int 
-                        not null auto_increment,      
-                        """
-        for i in range(len(colNames)):
-                query += colNames[i] + " " + colTypes[i] + ',' 
-        query = query[:-1]
-        query += ', primary key (`index`))'
-        cursor.execute(query)
-        # /remove
-        
-        ## inputvectors input, tried to remove the need to load sqlAlchemy
-        ## library, but the to_sql function seems to play favorites
-        dataFrame.to_sql(name='inputvectors',index=False, con=con, if_exists='append')
         
         query = """
                 alter table inputvectors
                 add column {0} decimal(7,4)
                 """.format(featureName)
-        cursor.execute(query)
-        query = """
-                select name, date, playerID from inputvectors
-                """
-        dataFrame = pd.read_sql_query(query, cnx)
-
+        cursor.execute(query)       
         
         
         print(newFeature.array)
@@ -99,8 +69,17 @@ def addNewFeature(featureName,featureQuery, cnx):
                         set {0} = {1}
                         where `index` = {2};
                         """.format(featureName, newFeature[i], i+1)
+        
         ## why do I need a loop in an execute multi=True call?
         ## it's stupid, that's why
         for result in cursor.execute(query, multi=True):
                 pass
+        cnx.commit()
+
+        query = """
+                insert into featuresList (feature)
+                values ("{0}")
+                """.format(featureQuery)
+        print (query)
+        cursor.execute(query)
         cnx.commit()
