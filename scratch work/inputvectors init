@@ -7,4 +7,38 @@ insert into inputvectors (name, date, playerID,
 fgPer, ftPer, 3fgm, pts, trb, ast, stl, blk, tov) 
 select name, date, playerID,  
 fgPer, ftPer, 3fgm, pts, trb, ast, stl, blk, tov
-from boxscores limit 20
+from boxscores limit 200000
+
+---database size:---
+SELECT table_schema "nba",
+        ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB" 
+FROM information_schema.tables 
+GROUP BY table_schema;
+
+
+####original form times for 2000 records :
+calculating feature : 3.41
+updating : 2.33
+total : 8.75
+
+####original form times for 20000 records :
+calculation of features complete....time elapsed : 40.79325342178345
+updates complete, time elapsed : 171.28187465667725
+finished adding new feature....total time elapsed : 220.87448620796204
+
+### 20000 records same execution method as calculations:
+calculation of features complete....time elapsed : 36.85518765449524
+updates complete, time elapsed : 4.667309284210205
+finished adding new feature....total time elapsed : 47.0207576751709
+
+### 200000 records same execution method as calculations:
+calculation of features complete....time elapsed : 560.3281836509705
+updates complete, time elapsed : 53.03019738197327
+finished adding new feature....total time elapsed : 630.905588388443
+### ok I'm happy with this performance now....
+
+### first full run on complete dataset :
+dataframe generation completed.....time elapsed : 10.856649160385132
+calculation of features complete....time elapsed : 5445.818879127502
+updates complete....time elapsed : 488.3437190055847
+finished adding new feature....total time elapsed : 6001.270716428757

@@ -6,7 +6,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sqlalchemy import create_engine
+import time
 
 ## this file is meant to be an example of utilizing 
 ## pandas to calculate my day-by-day feature vectors via pandas.dataFrame()
@@ -22,15 +22,8 @@ def addNewFeature(featureName,featureQuery, cnx):
        
         ## connection stuff
         cursor = cnx.cursor()
-        engine = create_engine("mysql://slick:muresan44@localhost/nba")
-        con = engine.connect()
+        start_time = time.time()
         
-        ## necessary data for calculated features
-        #query = """
-                #select name, playerID, date,
-                #fgPer, ftPer, 3fgm, pts, trb, ast, stl, blk, tov   
-                #from boxscores limit 20
-                #"""
         query = """
                 select name, date, playerID from inputvectors
                 """
@@ -38,10 +31,12 @@ def addNewFeature(featureName,featureQuery, cnx):
         ## cast date column to a datetime object
         dataFrame['date'] = pd.to_datetime(dataFrame['date'], format = '%Y-%m-%d')
 
+        dataframe_end = time.time() - start_time
+        print('dataframe generation completed.....time elapsed : {0}'.format(dataframe_end))
         #dataFrame = pd.read_sql_query(query, cnx)
         newFeature = pd.Series()
         
-        
+        features_start = time.time()
         ## run the queries to calculate the new feature set
         for row in range(len(dataFrame)):
                 query = featureQuery.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
@@ -52,7 +47,11 @@ def addNewFeature(featureName,featureQuery, cnx):
         ## remove me after testing!!
         #cursor.execute("alter table inputvectors drop column {0}}".format(featureName))
         ## /remove
+
+        features_end = time.time() - features_start
         
+        print ("calculation of features complete....time elapsed : {0}".format(features_end))
+
         
         query = """
                 alter table inputvectors
@@ -62,18 +61,29 @@ def addNewFeature(featureName,featureQuery, cnx):
         
         
         query = ''
+        updates_start = time.time()
+
+
         for i in range(len(newFeature.array)):
-                query += """
-                        update inputvectors
-                        set {0} = {1}
-                        where `index` = {2};
-                        """.format(featureName, newFeature[i], i+1)
+                if not pd.isna(newFeature[i]):
+                        query = """
+                                update inputvectors
+                                set {0} = {1}
+                                where `index` = {2};
+                                """.format(featureName, newFeature[i], i+1)
+                        cursor.execute(query)
         
+        cnx.commit()
+                        
+                
         ## why do I need a loop in an execute multi=True call?
         ## it's stupid, that's why
-        for result in cursor.execute(query, multi=True):
-                pass
-        cnx.commit()
+        #for result in cursor.execute(query, multi=True):
+                #pass
+        #cnx.commit()
+
+        updates_end = time.time() - updates_start
+        print ("updates complete....time elapsed : {0}".format(updates_end))
 
         query = """
                 insert into featuresList (feature)
@@ -81,3 +91,7 @@ def addNewFeature(featureName,featureQuery, cnx):
                 """.format(featureQuery)
         cursor.execute(query)
         cnx.commit()
+
+        end_time = time.time() - start_time
+
+        print ("finished adding new feature....total time elapsed : {0}".format(end_time))        
