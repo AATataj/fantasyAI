@@ -36,9 +36,9 @@ featureQuery = """
                 from boxscores
                 where playerID = {0}
                 and date < '{1}'
-                and date >= date_sub('{1}', interval 14 day)
+                and date >= date_sub('{1}', interval 7 day)
                """
-addNewFeature('ptsAvg14Days', featureQuery, cnx)
+addNewFeature('ptsAvg7Days', featureQuery, cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)

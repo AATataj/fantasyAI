@@ -18,7 +18,7 @@ def addNewFeature(featureName,featureQuery, cnx):
         ### This function is set up so that a new feature is defaulted as a 
         ### floating point value (decimal (7,4) in SQL) as a new column
         ### if the datatype is different, we need to change the 
-        ### alter table query below as well
+        ### alter table query below as well (line 58)
        
         ## connection stuff
         cursor = cnx.cursor()
@@ -61,7 +61,6 @@ def addNewFeature(featureName,featureQuery, cnx):
         cursor.execute(query)       
         
         
-        print(newFeature.array)
         query = ''
         for i in range(len(newFeature.array)):
                 query += """
@@ -80,6 +79,5 @@ def addNewFeature(featureName,featureQuery, cnx):
                 insert into featuresList (feature)
                 values ("{0}")
                 """.format(featureQuery)
-        print (query)
         cursor.execute(query)
         cnx.commit()
