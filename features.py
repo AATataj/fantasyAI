@@ -38,12 +38,23 @@ def addNewFeature(featureName,featureQuery, cnx):
         
         features_start = time.time()
         ## run the queries to calculate the new feature set
-        for row in range(len(dataFrame)):
-                query = featureQuery.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
-                data = pd.read_sql_query(query, cnx)
-                ## append calculated feature value to new feature series
-                newFeature = newFeature.append(data.loc[0], ignore_index=True)
-        
+        if 'Season' in featureName: 
+                for row in range(len(dataFrame)):
+                        query = featureQuery.format\
+                                        (dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'], \
+                                        datetime.date(dataFrame.loc[row, 'date'].year,10,1) \
+                                        if dataFrame.loc[row, 'date'].month>9 \
+                                        else datetime.date(dataFrame.loc[row, 'date'].year-1,10,1))
+                        data = pd.read_sql_query(query, cnx)
+                        ## append calculated feature value to new feature series
+                        newFeature = newFeature.append(data.loc[0], ignore_index=True)
+        else:
+                for row in range(len(dataFrame)):
+                        query = featureQuery.format(dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'])
+                        data = pd.read_sql_query(query, cnx)
+                        ## append calculated feature value to new feature series
+                        newFeature = newFeature.append(data.loc[0], ignore_index=True)
+                
         ## remove me after testing!!
         #cursor.execute("alter table inputvectors drop column {0}}".format(featureName))
         ## /remove
@@ -75,20 +86,14 @@ def addNewFeature(featureName,featureQuery, cnx):
         
         cnx.commit()
                         
-                
-        ## why do I need a loop in an execute multi=True call?
-        ## it's stupid, that's why
-        #for result in cursor.execute(query, multi=True):
-                #pass
-        #cnx.commit()
 
         updates_end = time.time() - updates_start
         print ("updates complete....time elapsed : {0}".format(updates_end))
 
         query = """
-                insert into featuresList (feature)
-                values ("{0}")
-                """.format(featureQuery)
+                insert into featuresList (name, feature)
+                values ("{0}","{1}")
+                """.format(featureName,featureQuery)
         cursor.execute(query)
         cnx.commit()
 
