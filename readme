@@ -18,6 +18,8 @@ data crunching operations this will have to do. Utilizing an old PS3 I'll conver
 box.  (EDIT : evidently, Sony took away this feature of the ps3 in 2010.  It's still possible
 but much more difficult to do now)
 
+The 'scratch' folder contains a lot of the one-off sql queries used to set up my tables, or smaller 
+functions I can use when testing the addition of new functionality
 --------
 Current state : 
 -I've set up and tested the 'league' functionality. A collection of team objects, matchups, schedule,
@@ -25,8 +27,12 @@ as well as the rules for determining the winners of the weekly matchups and the 
 -I've scraped the data required and set up the database, as well as indexed the data so it can be used
 programmatically.  Also created a pair of web scrapers that should continue to update the databases with
 new data as it's generated hands free (or as long as my upstream data creators don't change their websites)
--In the 'scratch' folder you can find a bunch of one-off queries used for setting up my tables, as well as 
-some of the scraped source data
+-I've added a generalized function to add any new features I come up with to my features set.
+--------
+Next Up : 
+- Add a few more precalculated features
+- create a generalized function to append new boxscores to my table of calculated features
+- feed the calculated features into tensorflow and have a rough first RNN algorithm
 --------
 Technology used :
 python3.7 as the base-language

@@ -36,7 +36,7 @@ featureQuery = """
                 from boxscores
                 where playerID = {0}
                 and date < '{1}'
-                and date >= "(if month('{1}') <9, year({1}) - 1, year{1})-10-01"
+                and date >= '{2}'
                """
 addNewFeature('ptsAvgSeason', featureQuery, cnx)
 
