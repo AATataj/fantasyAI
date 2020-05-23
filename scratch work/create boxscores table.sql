@@ -115,32 +115,12 @@ and (boxscores.date between '2012-10-30' and '2013-04-17');
 
 insert into boxscores (stl) select if (stl ='', 0, CAST(stl as signed int)) from boxscores2;
 
+select count(distinct(b1.date)) from boxscores as b1
+inner join boxscores as b2 on
+b1.team = b2.team and
+b2.playerID = 2958 and
+b1.date < '2018-01-18' and
+b1.date >= '2017-10-01'
 
-delete a from boxscores4 a 
-inner join boxscores4 a2
-where a.playerId = a2.playerID
-and a.age = a2.age
-and a.position = a2.position
-and a.date = a2.date
-and a.team = a2.team
-and a.homeAway = a2.homeAway
-and a.opponent = a2.opponent
-and a.result = a2.result
-and a.started = a2.started
-and a.minutes = a2.minutes
-and a.fgm = a2.fgm
-and a.fga = a2.fga
-and a.2fgm = a2.2fgm
-and a2.2fga = a2.2fga
-and a.3fgm = a2.3fgm
-and a.3fga = a2.3fga
-and a.ftm = a2.ftm
-and a.fta = a2.fta
-and a.trb = a2.trb
-and a.stl = a2.trb
-and a.ast = a2.ast
-and a.blk = a2.blk
-and a.tov = a2.tov
-and a.pf = a2.pf
-and a.pts = a2.pts
-
+select count(distinct(date)) from boxscores
+where 

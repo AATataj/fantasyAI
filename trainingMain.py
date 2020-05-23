@@ -6,19 +6,13 @@ from rotoworldScraper import updateRoto
 from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
+from training import train
 import datetime
 import pdb 
 import unidecode
 
 import pathlib
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import seaborn as sns
-
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 
 """mysql-python-connector"""
 cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='127.0.0.1', database='nba')
@@ -32,13 +26,14 @@ print("****************")
 #scrapeScores(cnx)
 
 featureQuery = """
-                select AVG(pts)
-                from boxscores
-                where playerID = {0}
-                and date < '{1}'
-                and date >= '{2}'
+                select count(distinct(date)) from boxscores where
+                playerID = {0} and
+                date < '{1}' and
+                date >= '{2}' 
                """
-addNewFeature('ptsAvgSeason', featureQuery, cnx)
+#addNewFeature('playerGameNum', featureQuery, cnx)
+
+train(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)

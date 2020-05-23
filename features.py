@@ -38,7 +38,7 @@ def addNewFeature(featureName,featureQuery, cnx):
         
         features_start = time.time()
         ## run the queries to calculate the new feature set
-        if 'Season' in featureName: 
+        if 'Season' or 'Game' in featureName: 
                 for row in range(len(dataFrame)):
                         query = featureQuery.format\
                                         (dataFrame.loc[row, 'playerID'], dataFrame.loc[row, 'date'], \

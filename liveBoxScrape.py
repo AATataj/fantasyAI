@@ -130,7 +130,7 @@ def scrapeScores(cnx):
     idMissingCount = cursor.fetchone()
     ## for new players with no entry:
     if idMissingCount[0] != 0 :
-        print("player not found....adding new player to playerHashes...")
+        print("player not found....adding new player(s) to playerHashes...")
         query = """
                 insert into playerHashes (name, dob)
                 select distinct (name), 
