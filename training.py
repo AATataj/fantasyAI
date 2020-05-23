@@ -13,8 +13,8 @@ from tensorflow.keras.layers import Dropout
 # it's using an LSTM to predict daily stats per player
 # LSTM isn't necessary because my featureset contains career/seasons/monthly/weekly averages as features
 # and the number of previous steps varies from player to player, and isn't necessarily the latest step 
-# in the mdel that matters.  As a result, I'm hammering a square peg into a round hole here trying to get 
-# perceptron to fit into the shape of an LSTM.  I'm going to re-write this as a perceptron model
+# in the model that matters.  As a result, I'm hammering a square peg into a round hole here trying to get 
+# linear regression to fit into the shape of an LSTM.  I'm going to re-write this as a linear regression model
 # but keep this code as an example.
 
 def train(cnx):

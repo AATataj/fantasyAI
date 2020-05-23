@@ -1,17 +1,16 @@
 This repo is the source code for a fantasy AI bot I'm developing.
 
 The plan is :
-To have a recurrent neural network be able to forecast an individual player's stat
+1.  Automate stat and availability report collection and feature calculation with python and selenium webdriver
+2.  To have a linear regression model be able to forecast an individual player's stat
 line through calculating features derived from various statistical metrics from  
-all NBA boxscore data in the 3-point era (1980 season and beyond).
-
-
-Additionally, playernotes data scraped from rotoworld.com will be rolled into a second layer 
-of machine learning using a state vector machine to do natural language processing to evaluate
-a player's availability on any given night, searching for player injuries, trades, and suspensions 
-from the playernotes data.
-
-Finally, plug the trained model into the yahoo fantasy sports API to control the live version.
+all NBA boxscore data in the 3-point era (1980 season and beyond).  
+3.  Then add an algorithm capable of classifying written text for a given player's availability 
+on a given night (SVM, sentiment analysis?)
+4.  Then add a reinforcement learning algorithm to handle the day-to-day adds drops, and trades
+to maximize results in regular season and playoff formats
+5.  Plug the reinforcement learning algorithm into Yahoo fantasy sports API to control a live version
+6.  PROFIT!
 
 As a bonus, I'm considering setting up my own kubernetes cluster to aid in some of the larger
 data crunching operations this will have to do. Utilizing an old PS3 I'll convert into a linux 
@@ -23,16 +22,21 @@ functions I can use when testing the addition of new functionality
 --------
 Current state : 
 -I've set up and tested the 'league' functionality. A collection of team objects, matchups, schedule,
-as well as the rules for determining the winners of the weekly matchups and the league overall.
+as well as the rules for determining the winners of the weekly matchups and the league overall.  
+This will be used as the framework for the reinforcement learning algorithm training with historical data
 -I've scraped the data required and set up the database, as well as indexed the data so it can be used
 programmatically.  Also created a pair of web scrapers that should continue to update the databases with
 new data as it's generated hands free (or as long as my upstream data creators don't change their websites)
--I've added a generalized function to add any new features I come up with to my features set.
+-I've added a generalized function to add any new features I come up with to a features table in the back end 
+-I've gotten a first successful run with a linear regression algorithm to predict player points from a 
+few basic features.  
 --------
 Next Up : 
-- Add a few more precalculated features
 - create a generalized function to append new boxscores to my table of calculated features
-- feed the calculated features into tensorflow and have a rough first RNN algorithm
+- figure out data visualization in python and tinker with the linear regression model to 
+get increasingly better results
+Ongoing : 
+- Add a few more precalculated features
 --------
 Technology used :
 python3.7 as the base-language
