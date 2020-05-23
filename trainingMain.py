@@ -7,6 +7,7 @@ from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
 from training import train
+from linearRegression import linReg
 import datetime
 import pdb 
 import unidecode
@@ -33,7 +34,8 @@ featureQuery = """
                """
 #addNewFeature('playerGameNum', featureQuery, cnx)
 
-train(cnx)
+#train(cnx)
+linReg(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)
