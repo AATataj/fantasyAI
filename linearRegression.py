@@ -32,7 +32,7 @@ def linReg(cnx) :
     features = unfiltered.drop(["index", "name", "playerID", "fgPer", "ftPer", "pts", "3fgm", "trb", 
     "ast", "stl", "blk", "tov"], axis=1)
 
-    removePtsNaN(features)
+    features = removePtsNaN(features)
 
     # drop date afterwards
     features = features.drop(['date'], axis=1)
@@ -96,39 +96,30 @@ def linReg(cnx) :
 
 def removePtsNaN(features):
     
+    features = features.drop(features.index[0])
     # set any nan to last 30 days avg of last non-nan
-    print (features.head())
+    print (features.head(20))
+    print (features.loc[features['date']=='1999-02-09'])
     for row in features.index:
-        #y=False
         for x in range(1, len(features.loc[row])):
-            #print(features.loc[row][x])
             if np.isnan(features.loc[row][x]) :
-                #y=True
                 last30date = max_lt(features['date'], features.loc[row, 'date'])
+                print(last30date)
                 nonNaN = features.loc[features['date']==last30date]
+                features.loc[row][x]=nonNaN.iloc[0].loc['ptsAvg30Days']
+                features.loc[row][x]=nonNaN.iloc[0].loc['minsAvg30Days']
                 
-                #print(last30date)
-                #print(features.loc[row]['date'])
-                print(nonNaN)
-                print(type(nonNaN))
-                print(nonNaN.shape)
-                pdb.set_trace()
-                #print(type(nonNaN.get(key='ptsAvg30Days')))
-                #print(nonNaN['ptsAvg30Days'].shape)
+                
+                print(nonNaN.iloc[0].loc['ptsAvg30Days'])
+                #pdb.set_trace()
                 print('----')
                 
-                #row[x] = 
+    for x in range(1, len(features.loc[row])):
+            if np.isnan(features.loc[row][x]) :
+                print(features.loc[row])
 
-        #if y:
-            ## find max date without nan less than current row
-            """last30date = max_lt(features['date'], row[1][0])
-            
-            nonNaN = features.loc[features['date']==last30date]
-            print (nonNaN)
-            print (row[1]['date'])            
-            print (last30date)
-            print('-----')
-            """
+    return features
+
 def max_lt(seq, val):
     """
     Return greatest item in seq for which item < val applies.
