@@ -26,25 +26,34 @@ def linReg(cnx) :
             select * from inputvectors where playerID = 3019 order by date asc
             """
     unfiltered = pd.read_sql_query(query, cnx)
+    
+    ##
+    ## this is where we'll have to deal with NaNs in the data:
+    ##
 
+    unfiltered = unfiltered.dropna()
+    
+    ##
     ## partition into the labels and features
+    ##
     labels = unfiltered.pts
     features = unfiltered.drop(["index", "name", "playerID", "fgPer", "ftPer", "pts", "3fgm", "trb", 
     "ast", "stl", "blk", "tov"], axis=1)
 
-    features = features.dropna()
-    #features = removePtsNaN(features)
-
+    
     # drop date afterwards
     features = features.drop(['date'], axis=1)
     print(features.isnull().sum())
     
+    ##
     ## normalize feature values to between 0..1:
-
     ## by standard deviation (handles outliers better):
+    ##
     features=(features-features.mean())/features.std()
 
+    ##
     ## partition into training vs testing sets
+    ##
     labelsTrain = labels.iloc[1:1229]
     labelsTest = labels.iloc[1330:1529]
     featuresTrain = features.iloc[1:1229]
@@ -52,16 +61,18 @@ def linReg(cnx) :
 
     print(featuresTrain.head())
 
+    ##
     ## convert to numpy arrays
+    ##
     labelsTrain = np.array(labelsTrain)
     labelsTest = np.array(labelsTest)
     featuresTrain = np.array(featuresTrain)
     featuresTest = np.array(featuresTest)
 
-
+    ##
     ##### building model :    
-    #layers.Dense(64, activation='relu', input_shape=[labelsTrain.shape[0]]),
-        
+    ##
+
     model = keras.Sequential([
         layers.Dense(64, activation='relu', input_shape=[len(features.keys())]),
         layers.Dense(64, activation='relu'),
@@ -71,6 +82,7 @@ def linReg(cnx) :
 
     model.compile(loss='mse', optimizer=optimizer, metrics=['mae', 'mse'])
     print('model compiled...')
+    
     #print basic data about the compiled model
     model.summary()
 
