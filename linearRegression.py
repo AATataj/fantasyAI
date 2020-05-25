@@ -32,12 +32,13 @@ def linReg(cnx) :
     features = unfiltered.drop(["index", "name", "playerID", "fgPer", "ftPer", "pts", "3fgm", "trb", 
     "ast", "stl", "blk", "tov"], axis=1)
 
-    features = removePtsNaN(features)
+    features = features.dropna()
+    #features = removePtsNaN(features)
 
     # drop date afterwards
     features = features.drop(['date'], axis=1)
     print(features.isnull().sum())
-    """
+    
     ## normalize feature values to between 0..1:
 
     ## by standard deviation (handles outliers better):
@@ -85,7 +86,7 @@ def linReg(cnx) :
     
     hist = pd.DataFrame(history.history)
     hist['epoch'] = history.epoch
-    print(hist)"""
+    print(hist)
 
     print ("linReg() complete.")
 
@@ -106,11 +107,19 @@ def removePtsNaN(features):
                 last30date = max_lt(features['date'], features.loc[row, 'date'])
                 print(last30date)
                 nonNaN = features.loc[features['date']==last30date]
-                features.loc[row][x]=nonNaN.iloc[0].loc['ptsAvg30Days']
-                features.loc[row][x]=nonNaN.iloc[0].loc['minsAvg30Days']
                 
+                ##
+                ##This is not the correct way to write to this data structure
+                ##We'll fix that in a future iteration
+                ##
+
+                features.set_value(row,x,nonNaN.iloc[0].loc['ptsAvg30Days'])
                 
-                print(nonNaN.iloc[0].loc['ptsAvg30Days'])
+                #features.loc[row][x]=nonNaN.iloc[0].loc['ptsAvg30Days']
+                #features.loc[row][x]=nonNaN.iloc[0].loc['minsAvg30Days']
+                
+                print (features.loc[row])
+                #print(nonNaN.iloc[0].loc['ptsAvg30Days'])
                 #pdb.set_trace()
                 print('----')
                 
