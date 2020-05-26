@@ -6,7 +6,6 @@ from rotoworldScraper import updateRoto
 from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
-from training import train
 from linearRegression import linReg
 import datetime
 import pdb 
@@ -27,15 +26,16 @@ print("****************")
 #scrapeScores(cnx)
 
 featureQuery = """
-                select count(distinct(date)) from boxscores where
-                playerID = {0} and
-                date < '{1}' and
-                date >= '{2}' 
-               """
-#addNewFeature('playerGameNum', featureQuery, cnx)
+                select AVG(trb)
+                from boxscores
+                where playerID = {0}
+                and date < '{1}'
+                and date >= '{2}'
+                """
+addNewFeature('trbAvgSeason', featureQuery, cnx)
 
 #train(cnx)
-linReg(cnx)
+#linReg(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)
