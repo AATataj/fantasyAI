@@ -7,6 +7,7 @@ from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
 from linearRegression import linReg
+from sentiment import sentiment
 import datetime
 import pdb 
 import unidecode
@@ -26,16 +27,16 @@ print("****************")
 #scrapeScores(cnx)
 
 featureQuery = """
-                select AVG(trb)
+                select AVG(pts)
                 from boxscores
                 where playerID = {0}
                 and date < '{1}'
-                and date >= '{2}'
                 """
-addNewFeature('trbAvgSeason', featureQuery, cnx)
+#addNewFeature('trbAvgCareer', featureQuery, cnx)
 
 #train(cnx)
 #linReg(cnx)
+sentiment(cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)
