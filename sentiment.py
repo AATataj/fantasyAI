@@ -34,25 +34,39 @@ import tensorflow_docs.plots
 def sentiment(cnx):
     
     cursor = cnx.cursor()
-    ## gather nba games schedule:
+
+    ## gather nba games schedule 2019-2020:
     query = """
             select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
             """
     schedule = pd.read_sql_query(query,cnx)
     schedule.rename(columns={'team':'away', 'opponent' : 'home'}, inplace=True)
     del schedule['homeAway']
-
     print(schedule.head())
+
+    # get a list of all players who appeared in all games over the course of the 2019-2020 season
+    query = """
+            select playerID, name, date, team, opponent from boxscores where date > '2019-10-01'
+            """
+    playedLabels = pd.read_sql_query(query,cnx)
+    print(playedLabels.head())
+    ##TODO: fill out these lists with all players on the roster.  It's not enough to have
+    ##      all the players who played minutes, I need all players on the roster to fill out 
+    ##      DNP-INJs and DNP-CDs
+
 
     query = """
             select * from rotoworld where playerID is not null;
             """
     playerNotes = pd.read_sql_query(query,cnx)
-
+    playerNotes.rename(columns={'date':'reportDate'}, inplace=True)
     print(playerNotes.head())
 
 
 def teamMap(full):
+
+    ## maps teamPos data to boxscore team abbreviations
+
     if 'DETROIT PISTONS' in full:
         out = 'DET'
     elif 'OKLAHOMA CITY THUNDER' in full:

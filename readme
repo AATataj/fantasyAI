@@ -20,16 +20,16 @@ but much more difficult to do now)
 The 'scratch' folder contains a lot of the one-off sql queries used to set up my tables, or smaller 
 functions I can use when testing the addition of new functionality
 --------
-Current state : 
--I've set up and tested the 'league' functionality. A collection of team objects, matchups, schedule,
-as well as the rules for determining the winners of the weekly matchups and the league overall.  
-This will be used as the framework for the reinforcement learning algorithm training with historical data
--I've scraped the data required and set up the database, as well as indexed the data so it can be used
-programmatically.  Also created a pair of web scrapers that should continue to update the databases with
-new data as it's generated hands free (or as long as my upstream data creators don't change their websites)
--I've added a generalized function to add any new features I come up with to a features table in the back end 
--I've gotten a first successful run with a linear regression algorithm to predict player points from a 
-few basic features.  
+Currently working on : 
+Sentiment analysis for predicting player availability.  Currently walking myself through the datasets,
+looking at edge cases and other pain points when compiling a dataset that predicts if a player plays
+in a particular game or not.
+
+My boxscore data only contains players who appeared in a game, not DNPs.  So, in order to get any 
+played = False results in my sentiment analysis dataset, I'm gonna have to create rosters for each 
+team and update them over the course of the season and fill them into my training/testing data.
+
+And right now, I need a strategy for doing this....
 --------
 Next Up : 
 - create a generalized function to append new boxscores to my table of calculated features
