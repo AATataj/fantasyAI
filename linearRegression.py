@@ -102,12 +102,12 @@ def linReg(cnx) :
 
     print ("linReg() complete.")
 
-    ##TODO : fix NaN values screwing up the model.fit() call
-    #      : 1st game of the season every season will yield a NaN value for all avg not career
-    ##     : 1st game back from injury extending beyond 7 days will yield NaN for 7 days, same for 14, 30, etc
-    ##     : need to decide how to handle these NaN values in the data, and update the dataframe (not the DB)
 
 def removePtsNaN(features):
+    ## this function is intended to set dummy values of 'last30Days'
+    ## to any NaN values in our dataset caused by returning from inactivity
+    ## or starting of seasons
+    ## it doesn't work (yet).  At present, we're dropping all rows with NaN in them.
     
     features = features.drop(features.index[0])
     # set any nan to last 30 days avg of last non-nan
@@ -120,10 +120,6 @@ def removePtsNaN(features):
                 print(last30date)
                 nonNaN = features.loc[features['date']==last30date]
                 
-                ##
-                ##This is not the correct way to write to this data structure
-                ##We'll fix that in a future iteration
-                ##
 
                 features.set_value(row,x,nonNaN.iloc[0].loc['ptsAvg30Days'])
                 
