@@ -5,11 +5,14 @@
 import mysql.connector
 import datetime
 import pandas as pd
+import pdb
 
 
 def setRosters(startYear, cnx):
     ## this one will append any new players who played a game for a team
     ## during the first month of a season to that team's roster.
+    ## This function misses players who START THE YEAR INJURED!!!
+    ## FAQ! there's always edge cases!!! 
     cursor = cnx.cursor()
 
     ## initialization
@@ -35,12 +38,15 @@ def setRosters(startYear, cnx):
     ## return list of players who played in first 30 days
     playerList = pd.read_sql_query(query, cnx)
 
-    query = """"""
     for team in teams:
-            query+="create table {0}-{1}-{2} (name varchar(100), playerID int(11));\n".format(
-                    team,str(startYear), str(startYear+1))
-    print (query)
+        query="create table {0}_{1}_{2} (name varchar(100), playerID int(11));".format(
+        team, str(startYear), str(startYear+1))
+        cursor.execute(query)
     
+    cnx.commit()
+    
+    
+
     ## create list of rosters
     rosters = []
     for team in teams:
@@ -48,7 +54,6 @@ def setRosters(startYear, cnx):
     #print (rosters)
 
     for i in range (len(playerList.index)):
-        #print (playerList.iloc[i].loc['name'], playerList.iloc[i].loc['team'], playerList.iloc[i].loc['playerID'])
         if playerList.iloc[i].loc['team'] == 'MIL':
                 rosters[0]['roster'].append((playerList.iloc[i].loc['name'],playerList.iloc[i].loc['playerID']))
         if playerList.iloc[i].loc['team'] == 'TOR':
@@ -110,4 +115,17 @@ def setRosters(startYear, cnx):
         if playerList.iloc[i].loc['team'] == 'GSW':
                 rosters[29]['roster'].append((playerList.iloc[i].loc['name'],playerList.iloc[i].loc['playerID']))
         
-    
+    for roster in rosters:
+        for player in roster['roster']:
+                query='insert into {0}_{1}_{2} (name, playerID) values ("{3}",{4});'.format(
+                roster['team'],
+                startYear,
+                (startYear+1),
+                player[0],
+                player[1]
+                )
+                cursor.execute(query)
+        #print (query)
+    cnx.commit()
+##def updateRosters (toDate, cnx):
+        ##cursor = cnx.cursor()
