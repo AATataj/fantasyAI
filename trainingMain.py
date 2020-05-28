@@ -8,7 +8,8 @@ from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
 from linearRegression import linReg
 from sentiment import sentiment
-import datetime
+from compileRosters import setRosters
+
 import pdb 
 import unidecode
 
@@ -36,7 +37,9 @@ featureQuery = """
 
 #train(cnx)
 #linReg(cnx)
-sentiment(cnx)
+#sentiment(cnx)
+
+setRosters(2019, cnx)
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)
