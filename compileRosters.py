@@ -28,7 +28,7 @@ def setRosters(startYear, cnx):
             'WAS', 'CHO', 'CHI', 'NYK', 'DET', 'ATL', 'CLE', 'LAL',
             'LAC', 'DEN', 'UTA', 'OKC', 'HOU', 'DAL', 'MEM', 'POR',
             'NOP', 'SAC', 'SAS', 'PHO', 'MIN', 'GSW']
-    
+    #dropRosters(startYear, teams, cnx)
     start = start[0]
     end = start + datetime.timedelta(days=30)  
     
@@ -127,5 +127,11 @@ def setRosters(startYear, cnx):
                 cursor.execute(query)
         #print (query)
     cnx.commit()
-##def updateRosters (toDate, cnx):
-        ##cursor = cnx.cursor()
+def updateRosters (toDate, cnx):
+        cursor = cnx.cursor()
+def dropRosters(toDate, teams, cnx):
+        cursor = cnx.cursor()
+        for team in teams:
+                query = "drop table {0}_{1}_{2}".format(team, toDate, (toDate+1))
+                cursor.execute(query)
+        cnx.commit()
