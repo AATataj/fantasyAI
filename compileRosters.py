@@ -127,8 +127,50 @@ def setRosters(startYear, cnx):
                 cursor.execute(query)
         #print (query)
     cnx.commit()
-def updateRosters (toDate, cnx):
+def updateRostersDB (toDate, cnx):
+        # this function will update the rosters as stored in the db
+        # since we're updating the db, which is a slower operation,
+        # this function will be used during live operation rather than training
         cursor = cnx.cursor()
+
+        if toDate.month() < 10 :
+                year = toDate.year() - 1
+        else :
+                year = toDate.year()
+        
+        ## get the latest update time
+        query = """
+                select UPDATE_TIME from information_schema 
+                where TABLE_SCHEMA = 'nba' 
+                and TABLE_NAME = 'TOR_{0}_{1}';
+                """.format(year, (year+1))
+        
+def updateRostersRAM(teams, year, toDate, cnx):
+        # this function will update rosters as a pandas dataframe
+        # since this data is stored in active memory,
+        # it'll be faster, and thus better to use during training       
+        cursor = cnx.cursor()
+        
+        ## create dataframe of all players in league:
+        for team in teams:
+                query = """
+                        select * from {0}_{1}_{2}
+                        """.format(team, year, (year+1))
+                teamRoster = pd.read_sql_query(query, cnx)
+                teamRoster['team'] = team
+                playerList.append(teamRoster) 
+
+        ## update the playerList to the toDate given.
+        for player in playerList:
+                query = """
+                        select max(date), team from boxscores where playerID = {0}
+                        """.format(player['playerID'])
+                latestGame = pd.read_sql_query(query,cnx)
+                if latestGame['team'] != playerList.iloc[player].loc['team']:
+                        playerList.iloc[player].loc['team'] = latestGame['team']
+        
+
+
 def dropRosters(toDate, teams, cnx):
         cursor = cnx.cursor()
         for team in teams:
