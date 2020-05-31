@@ -8,8 +8,8 @@ from liveBoxScrape import updatePlayerIDs
 from features import addNewFeature
 from linearRegression import linReg
 from sentiment import sentiment
-from compileRosters import setRosters
-
+from compileRosters import setRostersRAM
+from compileRosters import updateRostersRAM
 
 import pdb 
 import unidecode
@@ -40,7 +40,10 @@ featureQuery = """
 #linReg(cnx)
 #sentiment(cnx)
 
-setRosters(2019, cnx)
+playerList = setRostersRAM(2019, cnx)
+
+playerList = updateRostersRAM(playerList, '2020-02-01', cnx)
+ 
 
 """teamname=None
 testLeague = league(15,5,3,2012,"Test League", cnx)

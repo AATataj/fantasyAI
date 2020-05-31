@@ -145,29 +145,6 @@ def updateRostersDB (toDate, cnx):
                 and TABLE_NAME = 'TOR_{0}_{1}';
                 """.format(year, (year+1))
         
-def updateRostersRAM(teams, year, toDate, cnx):
-        # this function will update rosters as a pandas dataframe
-        # since this data is stored in active memory,
-        # it'll be faster, and thus better to use during training       
-        cursor = cnx.cursor()
-        
-        ## create dataframe of all players in league:
-        for team in teams:
-                query = """
-                        select * from {0}_{1}_{2}
-                        """.format(team, year, (year+1))
-                teamRoster = pd.read_sql_query(query, cnx)
-                teamRoster['team'] = team
-                playerList.append(teamRoster) 
-
-        ## update the playerList to the toDate given.
-        for player in playerList:
-                query = """
-                        select max(date), team from boxscores where playerID = {0}
-                        """.format(player['playerID'])
-                latestGame = pd.read_sql_query(query,cnx)
-                if latestGame['team'] != playerList.iloc[player].loc['team']:
-                        playerList.iloc[player].loc['team'] = latestGame['team']
         
 
 
@@ -177,3 +154,66 @@ def dropRosters(toDate, teams, cnx):
                 query = "drop table {0}_{1}_{2}".format(team, toDate, (toDate+1))
                 cursor.execute(query)
         cnx.commit()
+def setRostersRAM (startYear, cnx):
+        # this function will create a pandas dataframe contining a list of all
+        # active players in the first 30 days of a given season
+        # and store name, playerID, and team
+        # It will return a pandas dataframe of all those players
+        cursor = cnx.cursor()
+
+        ## initialization
+        octMin = datetime.datetime(startYear, 10, 1)
+        query = """
+                select min(date) from boxscores where date > '{0}';
+                """.format(octMin)
+        cursor.execute(query)
+        start = cursor.fetchone()
+
+
+        teams = ['MIL', 'TOR', 'BOS', 'MIA', 'IND', 'PHI', 'BRK', 'ORL', 
+                'WAS', 'CHO', 'CHI', 'NYK', 'DET', 'ATL', 'CLE', 'LAL',
+                'LAC', 'DEN', 'UTA', 'OKC', 'HOU', 'DAL', 'MEM', 'POR',
+                'NOP', 'SAC', 'SAS', 'PHO', 'MIN', 'GSW']
+        #dropRosters(startYear, teams, cnx)
+        start = start[0]
+        end = start + datetime.timedelta(days=30)  
+        
+        query = """
+                select distinct(playerID), name, team from boxscores where date > '{0}' and date < '{1}';
+                """.format(start,end)
+        ## return list of players who played in first 30 days
+        playerList = pd.read_sql_query(query, cnx)
+        print(playerList.count)
+        return playerList
+        
+
+
+def updateRostersRAM(playerList, toDate, cnx):
+        # this function will update rosters as a pandas dataframe
+        # since this data is stored in active memory,
+        # it'll be faster, and thus better to use during training       
+        cursor = cnx.cursor()
+        
+        teams = ['MIL', 'TOR', 'BOS', 'MIA', 'IND', 'PHI', 'BRK', 'ORL', 
+                'WAS', 'CHO', 'CHI', 'NYK', 'DET', 'ATL', 'CLE', 'LAL',
+                'LAC', 'DEN', 'UTA', 'OKC', 'HOU', 'DAL', 'MEM', 'POR',
+                'NOP', 'SAC', 'SAS', 'PHO', 'MIN', 'GSW']
+        
+        ## update the playerList to the toDate given.
+        for i in playerList.index:
+                query = """
+                        select max(date), team, name, playerID from boxscores where playerID = {0} and date <= '{1}'
+                        group by date, team, name, playerID
+                        order by date desc
+                        limit 1;
+                        """.format(playerList.iloc[i].loc['playerID'], toDate)
+                latestGame = pd.read_sql_query(query,cnx)
+                if latestGame.iloc[0]['team'] != playerList.iloc[i].loc['team']: 
+                        #print ("change committed")
+                        #print ("previous team : " + playerList.iloc[i].loc['team'])
+                        playerList.at[i, 'team'] = latestGame['team']
+                        #print ("currently : " + playerList.iloc[i].loc['team'])
+                        #print ("player name : " + playerList.iloc[i].loc['name'])
+                        #print ("playerID : " + playerList.iloc[i].loc['playerID'])
+        
+        return playerList        
