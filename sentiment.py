@@ -72,7 +72,7 @@ def createSentimentData(cnx):
                         """.format(currentDate, playerList.iloc[y]['playerID'])
                 result = pd.read_sql_query(query,cnx)
                 query = """
-                        SELECT name from BOXSCORES 
+                        SELECT name from boxscores 
                         WHERE playerID = {0} and date = '{1}'
                         """.format(playerList.iloc[y]['playerID'], currentDate)
                 answer = pd.read_sql_query(query,cnx)
@@ -81,7 +81,7 @@ def createSentimentData(cnx):
                 else:
                     played = 0
                 if not result.empty:
-                    sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
+                    sentimentData = sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
                                       'name' : playerList.iloc[y]['name'],
                                       'date' : currentDate,
                                       'home' : schedule.iloc[x]['home'],
@@ -91,7 +91,7 @@ def createSentimentData(cnx):
                                       'played' : played
                                     },ignore_index=True)
                 else : 
-                    sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
+                    sentimentData = sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
                                       'name' : playerList.iloc[y]['name'],
                                       'date' : currentDate,
                                       'home' : schedule.iloc[x]['home'],
