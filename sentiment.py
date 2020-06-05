@@ -51,6 +51,7 @@ def createSentimentData(cnx):
     # get a list of all players who appeared in all games over the course of the 2019-2020 season
     playerList = setRostersRAM(startYear,cnx)
     schedule = schedule.sort_values(by=['date'])
+    sentimentData = pd.DataFrame(columns= ['playerID', 'name', 'date', 'home', 'away', 'recentTitle', 'recentContent', 'played'])
     for x in range(len(schedule)):
         print (schedule.iloc[x]['home'] + " vs " + schedule.iloc[x]['away'] + ' on ' + str(schedule.iloc[x]['date']))
         currentDate = schedule.iloc[x]['date']
@@ -63,17 +64,46 @@ def createSentimentData(cnx):
                 ## select the max date < game date for a rotoworld entry for the given player
                 ## then append this to a features dataframe
                 query = """
-                        SELECT
+                        SELECT max(date), name, playerID, title, content 
+                        FROM rotoworld 
+                        WHERE date < '{0}' and playerID = {1}
+                        GROUP BY playerID, name, title, content
+                        LIMIT 1;
+                        """.format(currentDate, playerList.iloc[y]['playerID'])
+                result = pd.read_sql_query(query,cnx)
+                query = """
+                        SELECT name from BOXSCORES 
+                        WHERE playerID = {0} and date = '{1}'
+                        """.format(playerList.iloc[y]['playerID'], currentDate)
+                answer = pd.read_sql_query(query,cnx)
+                if not answer.empty:
+                    played = 1
+                else:
+                    played = 0
+                if not result.empty:
+                    sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
+                                      'name' : playerList.iloc[y]['name'],
+                                      'date' : currentDate,
+                                      'home' : schedule.iloc[x]['home'],
+                                      'away' : schedule.iloc[x]['away'],
+                                      'recentTitle' : result.iloc[0]['title'],
+                                      'recentContent' : result.iloc[0]['content'],
+                                      'played' : played
+                                    },ignore_index=True)
+                else : 
+                    sentimentData.append({'playerID' : playerList.iloc[y]['playerID'],
+                                      'name' : playerList.iloc[y]['name'],
+                                      'date' : currentDate,
+                                      'home' : schedule.iloc[x]['home'],
+                                      'away' : schedule.iloc[x]['away'],
+                                      'played' : played
+                    },ignore_index=True)
          
     
-    print (len(schedule))
+    print (sentimentData.head())
+    
 
-    ##TODO: fill out these lists with all players on the roster.  It's not enough to have
-    ##      all the players who played minutes, I need all players on the roster to fill out 
-    ##      DNP-INJs and DNP-CDs
-
-
-    query = """
+    """query = 
             select * from rotoworld where playerID is not null;
             """
     #playerNotes = pd.read_sql_query(query,cnx)
