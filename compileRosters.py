@@ -214,6 +214,6 @@ def updateRostersRAM(playerList, toDate, cnx):
                         playerList.at[i, 'team'] = latestGame['team']
                         #print ("currently : " + playerList.iloc[i].loc['team'])
                         #print ("player name : " + playerList.iloc[i].loc['name'])
-                        #print ("playerID : " + playerList.iloc[i].loc['playerID'])
+                        #print ("playerID : " + str(playerList.iloc[i].loc['playerID']))
         
         return playerList        

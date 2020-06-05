@@ -4,6 +4,9 @@ import pdb
 import numpy as np 
 import pandas as pd
 import mysql.connector
+from compileRosters import setRostersRAM
+from compileRosters import updateRostersRAM
+
 import matplotlib.pyplot as plt
 
 import tensorflow as tf
@@ -31,10 +34,10 @@ import tensorflow_docs.plots
 #   stitch together by taking max(date) of rotoworld, and appending it to date of each applicable game
 #   how to determine dnp-cds vs dnp-inj?
 
-def sentiment(cnx):
+def createSentimentData(cnx):
     
     cursor = cnx.cursor()
-
+    startYear = 2019
     ## gather nba games schedule 2019-2020:
     query = """
             select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
@@ -44,12 +47,27 @@ def sentiment(cnx):
     del schedule['homeAway']
     print(schedule.head())
 
+
     # get a list of all players who appeared in all games over the course of the 2019-2020 season
-    query = """
-            select playerID, name, date, team, opponent from boxscores where date > '2019-10-01'
-            """
-    playedLabels = pd.read_sql_query(query,cnx)
-    print(playedLabels.head())
+    playerList = setRostersRAM(startYear,cnx)
+    schedule = schedule.sort_values(by=['date'])
+    for x in range(len(schedule)):
+        print (schedule.iloc[x]['home'] + " vs " + schedule.iloc[x]['away'] + ' on ' + str(schedule.iloc[x]['date']))
+        currentDate = schedule.iloc[x]['date']
+        # update the rosters on every given day to check for trades, swaps, etc
+        if schedule.iloc[x]['date'] != currentDate:
+            updateRostersRAM(playerList,schedule.iloc[x]['date'], cnx)
+        ## for each player who is on a team who plays on the date, we need to pull their last
+        for y in range (len(playerList)):
+            if playerList.iloc[y]['team'] == schedule.iloc[x]['home'] or playerList.iloc[y]['team'] == schedule.iloc[x]['away']:
+                ## select the max date < game date for a rotoworld entry for the given player
+                ## then append this to a features dataframe
+                query = """
+                        SELECT
+         
+    
+    print (len(schedule))
+
     ##TODO: fill out these lists with all players on the roster.  It's not enough to have
     ##      all the players who played minutes, I need all players on the roster to fill out 
     ##      DNP-INJs and DNP-CDs
@@ -58,9 +76,9 @@ def sentiment(cnx):
     query = """
             select * from rotoworld where playerID is not null;
             """
-    playerNotes = pd.read_sql_query(query,cnx)
-    playerNotes.rename(columns={'date':'reportDate'}, inplace=True)
-    print(playerNotes.head())
+    #playerNotes = pd.read_sql_query(query,cnx)
+    #playerNotes.rename(columns={'date':'reportDate'}, inplace=True)
+    #print(playerNotes.head())
 
 
 def teamMap(full):
