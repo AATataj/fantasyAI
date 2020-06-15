@@ -27,38 +27,42 @@ channel.queue_declare(queue='data')
 cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='127.0.0.1', database='nba')
 cursor = cnx.cursor()
 
-# find start and end date of given season 
-query = """
-        select max(date) from boxscores where date < '{0}-09-01';
-        """.format(endYear)
-cursor.execute(query)
-seasonEnd = cursor.fetchall()
-seasonEnd = seasonEnd[0][0]
-query = """
-        select min(date) from boxscores where date > '{0}-10-01';
-        """.format(startYear)
-cursor.execute(query)
-seasonStart = cursor.fetchall()
-seasonStart = seasonStart[0][0]
-
-
-
 ### this query needs set before each run, it controls slave actions
 slaveQuery = """select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 7 day) and playerID = {1};"""
 
-jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
-print(jsonData)
+# find start and end date of given season 
+for year in range(int(startYear), int(endYear) + 1):
+
+        query = """
+                select max(date) from boxscores where date < '{0}-09-01';
+                """.format(year)
+        cursor.execute(query)
+        seasonEnd = cursor.fetchall()
+        seasonEnd = seasonEnd[0][0]
+        query = """
+                select min(date) from boxscores where date > '{0}-10-01';
+                """.format(year)
+        cursor.execute(query)
+        seasonStart = cursor.fetchall()
+        seasonStart = seasonStart[0][0]
 
 
-## create a loop of messages here
-channel.basic_publish(exchange='', 
+
+        
+        
+        jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
+        channel.basic_publish(exchange='', 
                       routing_key='data',
                       body=jsonData
                       )
 
 
+
+## create a loop of messages here
+
+
 connection.close()
 
-subprocess.run(command, shell=True)
+#subprocess.run(command, shell=True)
 
 

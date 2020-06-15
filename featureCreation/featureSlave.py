@@ -31,12 +31,14 @@ def callback(ch,method,properties,body):
     data = pd.read_sql_query(query, cnx)
     data[featureName] = np.NaN
 
+    # solve them
     for row in data.index:
         query = slaveQuery.format(data.loc[row]['date'],data.loc[row]['playerID'])
         cursor.execute(query)
         insert = cursor.fetchone()[0]
         data.at[row,featureName] = insert
     
+    # send the result to the mq for the aggregator
     print(data.head(10))
 
 # db conection details
