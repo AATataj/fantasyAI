@@ -1,14 +1,19 @@
 import subprocess
 import pika
 import mysql.connector
-import sys
 import pandas as pd
 from datetime import datetime
+import json
 
-# get command line args 
-startYear = sys.argv[1]
-endYear = sys.argv[2]
-featureName = sys.argv[3]
+# read query, feature name, start and end years from json file:
+with open('newFeature.json') as json_file:
+        data = json.load(json_file)
+        featureName = data['featureName']
+        startYear = data['startYear']
+        endYear = data['endYear']
+        slaveQuery = data['query']
+
+
 # this command is what we're gonna need to launch our slaves
 command = """
             kubectl create -f features-deployment.yaml
@@ -17,25 +22,29 @@ command = """
 command = """
             python3 featureSlave.py
           """
+command2 = """
+            python3 aggregator.py
+           """
+
 
 # mq connection details
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.queue_declare(queue='data')
+channel.queue_declare(queue='aggregator')
+
 
 # mysql connection details
 cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='127.0.0.1', database='nba')
 cursor = cnx.cursor()
 
-### this query needs set before each run, it controls slave actions
-slaveQuery = """select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 7 day) and playerID = {1};"""
 
 # find start and end date of given season 
 for year in range(int(startYear), int(endYear) + 1):
 
         query = """
                 select max(date) from boxscores where date < '{0}-09-01';
-                """.format(year)
+                """.format(year+1)
         cursor.execute(query)
         seasonEnd = cursor.fetchall()
         seasonEnd = seasonEnd[0][0]
@@ -45,11 +54,8 @@ for year in range(int(startYear), int(endYear) + 1):
         cursor.execute(query)
         seasonStart = cursor.fetchall()
         seasonStart = seasonStart[0][0]
-
-
-
         
-        
+        # create json data and use it as payload to a message in the mq
         jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
         channel.basic_publish(exchange='', 
                       routing_key='data',
@@ -58,11 +64,11 @@ for year in range(int(startYear), int(endYear) + 1):
 
 
 
-## create a loop of messages here
-
-
 connection.close()
 
-#subprocess.run(command, shell=True)
+# RELEASE THE SLAVES! 
 
+#subprocess.run(command, shell=True)
+subprocess.Popen([command], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+subprocess.run(command2, shell=True)
 
