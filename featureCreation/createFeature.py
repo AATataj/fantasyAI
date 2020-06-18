@@ -25,13 +25,15 @@ command = """
 command2 = """
             python3 aggregator.py
            """
-
+command3 = """
+             kubectl delete namespace='featureCreation'
+           """
 
 # mq connection details
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
-channel.queue_declare(queue='data')
-channel.queue_declare(queue='aggregator')
+status1 = channel.queue_declare(queue='data')
+status2 = channel.queue_declare(queue='aggregator')
 
 
 # mysql connection details
@@ -67,8 +69,10 @@ for year in range(int(startYear), int(endYear) + 1):
 connection.close()
 
 # RELEASE THE SLAVES! 
-
-#subprocess.run(command, shell=True)
 subprocess.Popen([command], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-subprocess.run(command2, shell=True)
+aggregator = subprocess.Popen([command2], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 
+if status1.method.message_count == 0 and status2.method.message_count == 0:
+        aggregator.kill()
+        subprocess.Popen([command3], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+        ## command that will kill the slaves

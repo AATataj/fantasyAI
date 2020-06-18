@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import json
 from datetime import datetime
-import pdb
 
 def callback(ch,method,properties,body):
     # extract data from json
@@ -37,7 +36,7 @@ def callback(ch,method,properties,body):
             query = """
                     update featureVectors
                     set {0} = {1}
-                    where date = '{2}' and playerID = {3};
+                    where playerID = {3} and date = '{2}';
                     """.format(featureName, data.iloc[row].loc[featureName],
                                 data.iloc[row].loc['date'], data.iloc[row].loc['playerID'])
             cursor.execute(query)
