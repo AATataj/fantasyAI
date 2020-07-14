@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: dockerAuth
-data:
-  .dockerconfigjson: YWF0YXRhajpiaWdHaGVvcmdoZTc3
-type: kubernetes.io/dockerconfigjson

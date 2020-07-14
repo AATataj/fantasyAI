@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: features-deployment
+  labels:
+    app: feature
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: feature
+  template:
+    metadata:
+      labels:
+        app: feature
+    spec:  
+      hostNetwork: true
+      containers:
+      - name: features-slave
+        image: feature
+        ports:
+        - containerPort: 6677
+        imagePullPolicy : Never

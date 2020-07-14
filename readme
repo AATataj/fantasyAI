@@ -12,15 +12,13 @@ to maximize results in regular season and playoff formats
 5.  Plug the reinforcement learning algorithm into Yahoo fantasy sports API to control a live version
 6.  PROFIT!
 
-As a bonus, I'm considering setting up my own kubernetes cluster to aid in some of the larger
-data crunching operations this will have to do. Utilizing an old PS3 I'll convert into a linux 
-box.  (EDIT : evidently, Sony took away this feature of the ps3 in 2010.  It's still possible
-but much more difficult to do now)
-
 The 'scratch' folder contains a lot of the one-off sql queries used to set up my tables, or smaller 
 functions I can use when testing the addition of new functionality
 --------
 Currently working on : 
+dockerizing the workflow for precalculated features.  Basically a data pipeline that utilizes my database,
+subdivides the job, and processes the feature with parallelization
+
 Sentiment analysis for predicting player availability.  Currently walking myself through the datasets,
 looking at edge cases and other pain points when compiling a dataset that predicts if a player plays
 in a particular game or not.
@@ -39,13 +37,13 @@ Ongoing :
 - Add a few more precalculated features
 --------
 Technology used :
-python3.7 as the base-language
+python3.8 as the base-language
 mysql as the database
 tensorflow for the machine learning components
 pandas for the input vector data to tensorflow
 selenium for web scraping
 git for sharing to anyone interested as well as versioning control
 yahoo fantasy sports api* 
-kubernetes*
+docker
 
 * to be added soon

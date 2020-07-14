@@ -4,6 +4,9 @@ import mysql.connector
 import pandas as pd
 from datetime import datetime
 import json
+import pdb
+import time
+import os
 
 # read query, feature name, start and end years from json file:
 with open('newFeature.json') as json_file:
@@ -12,28 +15,39 @@ with open('newFeature.json') as json_file:
         startYear = data['startYear']
         endYear = data['endYear']
         slaveQuery = data['query']
+        replicas = data['replicas']
 
 
 # this command is what we're gonna need to launch our slaves
-command = """
-            kubectl create -f features-deployment.yaml
-          """
-# but for now, we're testing with one without k8s
-command = """
-            python3 featureSlave.py
-          """
-command2 = """
-            python3 aggregator.py
+sqlLauncher = """
+              docker run -d --name mysql-server -v /var/lib/mysql:/var/lib/mysql mysql
+              """
+slaveLauncher = """
+                docker run -d --name slave{0} feature
+                """
+# launch the aggregator
+aggregatorLauncher = """
+                     docker run -d --name aggregator aggregator
+                     """
+
+# kill the slaves
+teardown = """
+           docker rm $(docker ps -a -q) --force
            """
-command3 = """
-             kubectl delete namespace='featureCreation'
-           """
+# create network 
+initNetwork = """
+              docker network create featureNetwork
+              """
+connect = """
+               docker network connect featureNetwork {0}
+               """
 
 # mq connection details
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
-status1 = channel.queue_declare(queue='data')
-status2 = channel.queue_declare(queue='aggregator')
+channel.basic_qos(prefetch_count=1)
+channel.queue_declare(queue='data')
+channel.queue_declare(queue='aggregator')
 
 
 # mysql connection details
@@ -42,6 +56,7 @@ cursor = cnx.cursor()
 
 
 # find start and end date of given season 
+print ('partitioning the feature creation...')
 for year in range(int(startYear), int(endYear) + 1):
 
         query = """
@@ -65,14 +80,64 @@ for year in range(int(startYear), int(endYear) + 1):
                       )
 
 
+# Create the feature in db
+print('creating column in featurevector and adding entry into feature table...')
+query = """
+        insert into featuresList2 (feature, name) values ("{0}" , "{1}")
+        """.format(slaveQuery, featureName)
+cursor.execute(query)
+cnx.commit()
+query = """
+        alter table featureVectors
+        add column {0} decimal(7,4);
+        """.format(featureName)
+cursor.execute(query)
+cnx.commit()
+cnx.close()
 
-connection.close()
+# stop the sql localhost instance
+print('shutting down local mysql service...')
+os.system('sudo /home/slick/fantasy/sqlShutdown.sh')
+
+# Create sql instance :
+print ("starting the sql-server...")
+sqlStart = subprocess.Popen([sqlLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+sqlStart.wait()
+p = subprocess.Popen([initNetwork], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+p.wait()
 
 # RELEASE THE SLAVES! 
-subprocess.Popen([command], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-aggregator = subprocess.Popen([command2], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+for i in range(replicas):
+        print("starting slave {0}".format(i))
+        p = subprocess.Popen([slaveLauncher.format(i)], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+        p.wait()
+        p = subprocess.Popen([connect.format('slave'+str(i))],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+        p.wait()
 
-if status1.method.message_count == 0 and status2.method.message_count == 0:
-        aggregator.kill()
-        subprocess.Popen([command3], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-        ## command that will kill the slaves
+# Create aggregator
+print ("starting the aggregator...")
+aggregator = subprocess.Popen([aggregatorLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+p.wait()
+p = subprocess.Popen([connect.format('aggregator')], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+p.wait()
+
+pdb.set_trace()
+while 1:
+        ## monitor queue size once every 10 seconds
+        time.sleep(10)
+        status1 = channel.queue_declare(queue='data', passive=True)
+        status2 = channel.queue_declare(queue='aggregator', passive=True)
+        ## clean up if queues are both empty
+        if status1.method.message_count == 0 and status2.method.message_count == 0:
+                break
+
+
+print("killing aggregator....")
+aggregator.kill()
+print("killing slaves....")
+subprocess.Popen([teardown], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+print("restarting sql service on localhost...")
+os.system('sudo /home/slick/fantasy/sqlStart.sh')
+
+connection.close()
+print("all done, feature added!")
