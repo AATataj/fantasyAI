@@ -16,7 +16,8 @@ with open('newFeature.json') as json_file:
         startYear = data['startYear']
         endYear = data['endYear']
         slaveQuery = data['query']
-        replicas = data['replicas']
+        slaveReplicas = data['slaveReplicas']
+        aggregatorReplicas = data['aggregatorReplicas']
 
 
 # this command is what we're gonna need to launch our slaves
@@ -24,18 +25,17 @@ sqlLauncher = """
               docker run -d --name mysql-server -v /var/lib/mysql:/var/lib/mysql mysql
               """
 slaveLauncher = """
-                docker run -d --name slave{0} feature
-                """
-slaveLauncher = """
                 docker service create --replicas {0} --name slave feature
-                """.format(replicas)
+                """.format(slaveReplicas)
 swarmStart = "docker swarm init"
 
 # launch the aggregator
 aggregatorLauncher = """
                      docker run -d --name aggregator aggregator
                      """
-
+aggregatorLauncher = """
+                docker service create --replicas{0} --name aggr aggregator
+                     """.format(aggregatorReplicas)
 # kill the slaves
 teardown2 = """
             docker swarm leave --force
@@ -95,14 +95,6 @@ for year in range(int(startYear), int(endYear) + 1):
                       body=jsonData
                       )        
 
-#        create json data and use it as payload to a message in the mq
-#        jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
-#         channel.basic_publish(exchange='', 
-#                       routing_key='data',
-#                       body=jsonData
-#                       )
-# sys.exit()
-
 # Create the feature in db
 print('creating column in featurevector and adding entry into feature table...')
 query = """
@@ -129,31 +121,18 @@ sqlStart.wait()
 
 swarmStart = subprocess.Popen([swarmStart], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 swarmStart.wait()
-#p = subprocess.Popen([initNetwork], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-#p.wait()
-#p = subprocess.Popen([connect.format('mysql-server'],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-#p.wait()
 
 # RELEASE THE SLAVES! 
 print('starting slave service...')
 p = subprocess.Popen([slaveLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 p.wait()
 
-# for i in range(replicas):
-#         print("starting slave {0}".format(i))
-#         p = subprocess.Popen([slaveLauncher.format(i)], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-#         p.wait()
-        #p = subprocess.Popen([connect.format('slave'+str(i))],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-        #p.wait()
 
 # Create aggregator
 print ("starting the aggregator...")
 aggregator = subprocess.Popen([aggregatorLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 p.wait()
-#p = subprocess.Popen([connect.format('aggregator')], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-#p.wait()
 
-#pdb.set_trace()
 while 1:
         ## monitor queue size once every 5 seconds
         time.sleep(5)

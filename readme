@@ -16,8 +16,10 @@ The 'scratch' folder contains a lot of the one-off sql queries used to set up my
 functions I can use when testing the addition of new functionality
 --------
 Currently working on : 
-dockerizing the workflow for precalculated features.  Basically a data pipeline that utilizes my database,
-subdivides the job, and processes the feature with parallelization
+optimizing my data pipeline.  
+    1.  Have it be able to take in multiple features and calculate them in turn
+    2.  persist the cloud setup between consecutive runs
+    3.  time trials/stress testing with more slaves and aggregators
 
 Sentiment analysis for predicting player availability.  Currently walking myself through the datasets,
 looking at edge cases and other pain points when compiling a dataset that predicts if a player plays

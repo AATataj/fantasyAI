@@ -3,5 +3,6 @@
     "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 7 day) and playerID = {1};",
     "startYear" : 1980,
     "endYear" : 2019,
-    "replicas" : 3
+    "slaveReplicas" : 3,
+    "aggregatorReplicas" : 2
 }
