@@ -26,23 +26,9 @@ def callback(ch,method,properties,body):
                                 data.iloc[row].loc['date'], data.iloc[row].loc['playerID'])
             cursor.execute(query)
     cnx.commit()
-
-
-## get ip address of mysql instance
-getIP = """ 
-        docker inspect mysql-server | grep '"IPAddress"' | head -n 1 
-        """
-
-p = subprocess.Popen([getIP], shell=True, stdin=None, stdout=subprocess.PIPE, stderr=None, close_fds=True)
-p.wait()
-ipAddr, err = p.communicate()
-ipAddr = str(ipAddr)
-ipAddr = ipAddr.replace('"IPAddress": "', "")
-ipAddr = ipAddr.replace("b'", "")
-ipAddr = ipAddr.replace('",\\n', "")
-ipAddr = ipAddr.replace("'", "")
-ipAddr = ipAddr.strip()
-print (ipAddr)
+    print ('weekly block inserted')
+    # manually send ack to queue
+    ch.basic_ack(delivery_tag = method.delivery_tag)
 
 # db conection details
 cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='172.17.0.2', database='nba')
@@ -51,7 +37,7 @@ cursor = cnx.cursor()
 # mq connection details
 # connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 creds = pika.PlainCredentials('slick','muresan44')
-connection = pika.BlockingConnection(pika.ConnectionParameters('172.17.0.1', 5672, '/', creds, heartbeat=0))
+connection = pika.BlockingConnection(pika.ConnectionParameters('172.17.0.1', 5672, '/', creds)) # , hearbeat = 0
 channel=connection.channel()
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(queue='aggregator', auto_ack=False, on_message_callback=callback)

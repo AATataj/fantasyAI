@@ -3,10 +3,11 @@ import pika
 import mysql.connector
 import pandas as pd
 from datetime import datetime
+from datetime import timedelta
 import json
 import pdb
 import time
-import os
+import os, sys
 
 # read query, feature name, start and end years from json file:
 with open('newFeature.json') as json_file:
@@ -67,6 +68,7 @@ cursor = cnx.cursor()
 
 # find start and end date of given season 
 print ('partitioning the feature creation...')
+i = 0
 for year in range(int(startYear), int(endYear) + 1):
 
         query = """
@@ -82,13 +84,24 @@ for year in range(int(startYear), int(endYear) + 1):
         seasonStart = cursor.fetchall()
         seasonStart = seasonStart[0][0]
         
-        # create json data and use it as payload to a message in the mq
-        jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
-        channel.basic_publish(exchange='', 
+        currentDate = seasonStart   
+        while currentDate <= seasonEnd:
+                i+=1
+                jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, currentDate, currentDate + timedelta(days=7), featureName)
+                currentDate = currentDate + timedelta(days=8)
+                #print (jsonData + ' : ' + str(i))
+                channel.basic_publish(exchange='', 
                       routing_key='data',
                       body=jsonData
-                      )
+                      )        
 
+#        create json data and use it as payload to a message in the mq
+#        jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, seasonStart, seasonEnd, featureName)
+#         channel.basic_publish(exchange='', 
+#                       routing_key='data',
+#                       body=jsonData
+#                       )
+# sys.exit()
 
 # Create the feature in db
 print('creating column in featurevector and adding entry into feature table...')
@@ -140,10 +153,10 @@ p.wait()
 #p = subprocess.Popen([connect.format('aggregator')], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 #p.wait()
 
-pdb.set_trace()
+#pdb.set_trace()
 while 1:
-        ## monitor queue size once every 10 seconds
-        time.sleep(10)
+        ## monitor queue size once every 5 seconds
+        time.sleep(5)
         status1 = channel.queue_declare(queue='data', passive=True)
         status2 = channel.queue_declare(queue='aggregator', passive=True)
         ## clean up if queues are both empty

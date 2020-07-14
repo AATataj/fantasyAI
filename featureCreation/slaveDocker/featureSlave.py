@@ -60,22 +60,8 @@ def callback(ch,method,properties,body):
                           routing_key='aggregator',
                           body=payload
                          )
-    
-# get ip address of mysql instance
-getIP = """ 
-        docker inspect mysql-server | grep '"IPAddress"' | head -n 1 
-        """
-
-p = subprocess.Popen([getIP], shell=True, stdin=None, stdout=subprocess.PIPE, stderr=None, close_fds=True)
-p.wait
-ipAddr, err = p.communicate()
-ipAddr = str(ipAddr)
-ipAddr = ipAddr.replace('"IPAddress": "', "")
-ipAddr = ipAddr.replace("b'", "")
-ipAddr = ipAddr.replace('",\\n', "")
-ipAddr = ipAddr.replace("'", "")
-ipAddr = ipAddr.strip()
-print(ipAddr)
+    # manually send ack to queue
+    ch.basic_ack(delivery_tag = method.delivery_tag)
 
 
 # db conection details
@@ -84,7 +70,7 @@ cursor = cnx.cursor()
 
 # mq connection details
 creds = pika.PlainCredentials('slick','muresan44')
-connection = pika.BlockingConnection(pika.ConnectionParameters('172.17.0.1', 5672, '/', creds, heartbeat=0))
+connection = pika.BlockingConnection(pika.ConnectionParameters('172.17.0.1', 5672, '/', creds)) # , heartbeat=0
 #connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel=connection.channel()
 channel.basic_qos(prefetch_count=1)
