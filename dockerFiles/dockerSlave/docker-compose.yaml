@@ -1,0 +1,15 @@
+version: "3"
+services:
+  minions:
+    image: feature
+    deploy:
+      replicas: 3
+       resources:
+         limits:
+           cpus: "0.5"
+           memory: 2G 
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "18080:8080"
+    network_mode: "host"

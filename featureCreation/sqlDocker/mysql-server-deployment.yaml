@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-server-deployment
+  labels:
+    app: servers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servers
+  template:
+    metadata:
+      labels:
+        app: servers
+    spec:  
+      containers:
+      - name: mysql-server
+        image: mysql-server
+        ports:
+        - containerPort: 3306
+        imagePullPolicy : Never
+        volumeMounts:
+          - mountPath : /var/lib/mysql
+            name : database-values
+          - mountPath : var/run/mysqld
+            name : database-sockets
+      volumes:
+        - name: database-values
+          hostPath: 
+            path : /var/lib/mysql
+            type : Directory
+        - name: database-sockets
+          hostPath: 
+            path : /var/run/mysqld
+            type : Directory
+
