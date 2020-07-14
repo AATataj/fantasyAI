@@ -4,4 +4,4 @@ RUN pip install mysql-connector-python && \
     pip install pandas && \
     pip install pika && \
     pip install numpy
-CMD ["python3", "./aggregator.py"]
+CMD ["python3", "-u", "./aggregator.py"]

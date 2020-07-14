@@ -29,7 +29,6 @@ def callback(ch,method,properties,body):
             select name, playerID, date from boxscores where date >= '{0}' and date <= '{1}'; 
             """.format(startDate, endDate)
     
-    print (query)
     data = pd.read_sql_query(query, cnx)
     data[featureName] = np.NaN
 
@@ -89,7 +88,7 @@ connection = pika.BlockingConnection(pika.ConnectionParameters('172.17.0.1', 567
 #connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel=connection.channel()
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue='data', auto_ack=True, on_message_callback=callback)
+channel.basic_consume(queue='data', auto_ack=False, on_message_callback=callback)
 channel.start_consuming()
 connection.close()
 

@@ -25,15 +25,24 @@ sqlLauncher = """
 slaveLauncher = """
                 docker run -d --name slave{0} feature
                 """
+slaveLauncher = """
+                docker service create --replicas {0} --name slave feature
+                """.format(replicas)
+swarmStart = "docker swarm init"
+
 # launch the aggregator
 aggregatorLauncher = """
                      docker run -d --name aggregator aggregator
                      """
 
 # kill the slaves
+teardown2 = """
+            docker swarm leave --force
+            """
 teardown = """
            docker rm $(docker ps -a -q) --force
            """
+
 # create network 
 initNetwork = """
               docker network create featureNetwork
@@ -46,6 +55,7 @@ connect = """
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.basic_qos(prefetch_count=1)
+
 channel.queue_declare(queue='data')
 channel.queue_declare(queue='aggregator')
 
@@ -103,23 +113,32 @@ os.system('sudo /home/slick/fantasy/sqlShutdown.sh')
 print ("starting the sql-server...")
 sqlStart = subprocess.Popen([sqlLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 sqlStart.wait()
-p = subprocess.Popen([initNetwork], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-p.wait()
+
+swarmStart = subprocess.Popen([swarmStart], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+swarmStart.wait()
+#p = subprocess.Popen([initNetwork], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+#p.wait()
+#p = subprocess.Popen([connect.format('mysql-server'],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+#p.wait()
 
 # RELEASE THE SLAVES! 
-for i in range(replicas):
-        print("starting slave {0}".format(i))
-        p = subprocess.Popen([slaveLauncher.format(i)], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-        p.wait()
-        p = subprocess.Popen([connect.format('slave'+str(i))],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-        p.wait()
+print('starting slave service...')
+p = subprocess.Popen([slaveLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+p.wait()
+
+# for i in range(replicas):
+#         print("starting slave {0}".format(i))
+#         p = subprocess.Popen([slaveLauncher.format(i)], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+#         p.wait()
+        #p = subprocess.Popen([connect.format('slave'+str(i))],shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+        #p.wait()
 
 # Create aggregator
 print ("starting the aggregator...")
 aggregator = subprocess.Popen([aggregatorLauncher], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 p.wait()
-p = subprocess.Popen([connect.format('aggregator')], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-p.wait()
+#p = subprocess.Popen([connect.format('aggregator')], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+#p.wait()
 
 pdb.set_trace()
 while 1:
@@ -131,10 +150,9 @@ while 1:
         if status1.method.message_count == 0 and status2.method.message_count == 0:
                 break
 
-
-print("killing aggregator....")
-aggregator.kill()
-print("killing slaves....")
+print ('killing swarm...')
+subprocess.Popen([teardown2], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+print("killing slaves, aggregator and mysql-server....")
 subprocess.Popen([teardown], shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 print("restarting sql service on localhost...")
 os.system('sudo /home/slick/fantasy/sqlStart.sh')

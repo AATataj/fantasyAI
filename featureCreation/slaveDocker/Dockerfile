@@ -4,4 +4,4 @@ RUN pip install mysql-connector-python && \
     pip install pandas && \
     pip install pika && \
     pip install numpy
-CMD ["python3", "./featureSlave.py"]
+CMD ["python3", "-u", "./featureSlave.py"]
