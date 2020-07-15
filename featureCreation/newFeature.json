@@ -1,8 +1,18 @@
 {
-    "featureName" : "orbAvg7Days",
-    "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 7 day) and playerID = {1};",
-    "startYear" : 1980,
-    "endYear" : 2019,
     "slaveReplicas" : 3,
-    "aggregatorReplicas" : 2
+    "aggregatorReplicas" : 2,
+    "features" : [ 
+        {
+        "featureName" : "orbAvg14Days",
+        "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 14 day) and playerID = {1};",
+        "startYear" : 1980,
+        "endYear" : 2019
+        },
+        {
+            "featureName" : "orbAvg30Days",
+            "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 30 day) and playerID = {1};",
+            "startYear" : 1980,
+            "endYear" : 2019
+        }
+    ]  
 }
