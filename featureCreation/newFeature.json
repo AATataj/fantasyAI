@@ -1,16 +1,34 @@
 {
-    "slaveReplicas" : 3,
-    "aggregatorReplicas" : 2,
+    "slaveReplicas" : 5,
+    "aggregatorReplicas" : 3,
     "features" : [ 
         {
-        "featureName" : "orbAvg14Days",
-        "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 14 day) and playerID = {1};",
-        "startYear" : 1980,
-        "endYear" : 2019
+            "featureName" : "3fgmAvg7Days",
+            "query" :   "select AVG(3fgm) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 7 day);",
+            "startYear" : 1980,
+            "endYear" : 2019
         },
         {
-            "featureName" : "orbAvg30Days",
-            "query" : "select avg(orb) from boxscores where date < '{0}' and date > date_sub('{0}', interval 30 day) and playerID = {1};",
+            "featureName" : "3fgmAvg14Days",
+            "query" :   "select AVG(3fgm) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 14 day);",
+            "startYear" : 1980,
+            "endYear" : 2019
+        },
+        {
+            "featureName" : "3fgmAvg30Days",
+            "query" :   "select AVG(3fgm) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 30 day);",
+                        "startYear" : 1980,
+                        "endYear" : 2019
+        },
+        {
+            "featureName" : "3fgmAvgSeason",
+            "query" : "select avg(3fgm) from boxscores where date < '{0}' and date >= '{2}' and playerID = {1};",
+            "startYear" : 1980,
+            "endYear" : 2019
+        },
+        {
+            "featureName" : "3fgmAvgCareer",
+            "query" : "select avg(3fgm) from boxscores where date < '{0}' and playerID = {1};",
             "startYear" : 1980,
             "endYear" : 2019
         }

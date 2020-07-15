@@ -127,14 +127,20 @@ with open('newFeature.json') as json_file:
                         seasonStart = cursor.fetchall()
                         seasonStart = seasonStart[0][0]                
                         currentDate = seasonStart   
+                        if 'Season' in featureName:
+                                slaveQueryOrig = slaveQuery
                         while currentDate <= seasonEnd:
+                                if 'Season' in featureName:
+                                        slaveQuery=slaveQuery.format('{0}', '{1}', seasonStart)                                                                        
                                 jsonData = '{{"query" : "{0}","args" : ["{1}","{2}", "{3}"]}}'.format(slaveQuery, currentDate, currentDate + timedelta(days=7), featureName)
                                 currentDate = currentDate + timedelta(days=8)
                                 channel.basic_publish(exchange='', 
                                 routing_key='data',
                                 body=jsonData
-                                )        
-                
+                                )
+                        if 'Season' in featureName:
+                                slaveQuery = slaveQueryOrig
+
 shutdownLocalSQL()
 createSQLContainer(sqlLauncher)
 swarmsetup(swarmStart, slaveLauncher, aggregatorLauncher, slaveReplicas, aggregatorReplicas)
