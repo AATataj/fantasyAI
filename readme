@@ -13,14 +13,9 @@ to maximize results in regular season and playoff formats
 6.  PROFIT!
 
 The 'scratch' folder contains a lot of the one-off sql queries used to set up my tables, or smaller 
-functions I can use when testing the addition of new functionality
+functions I can use when testing the addition of new functionality, or old depreciated functionality
 --------
 Currently working on : 
-optimizing my data pipeline.  
-    1.  Have it be able to take in multiple features and calculate them in turn
-    2.  persist the cloud setup between consecutive runs
-    3.  time trials/stress testing with more slaves and aggregators
-
 Sentiment analysis for predicting player availability.  Currently walking myself through the datasets,
 looking at edge cases and other pain points when compiling a dataset that predicts if a player plays
 in a particular game or not.
