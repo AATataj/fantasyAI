@@ -19,7 +19,7 @@ def callback(ch,method,properties,body):
     for row in data.index:
         if not pd.isna(data.iloc[row].loc[featureName]): 
             query = """
-                    update featureVectors
+                    update inputvectors
                     set {0} = {1}
                     where playerID = {3} and date = '{2}';
                     """.format(featureName, data.iloc[row].loc[featureName],

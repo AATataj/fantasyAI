@@ -32,14 +32,14 @@ teardown2 =                     """
 ## docker rm $(docker ps -a -q) --force
 def createDBfeature(slaveQuery, featureName):
         # Create the feature in db
-        print('creating column in featurevector and adding entry into feature table for {0}...'.format(featureName))
+        print('creating column in inputvector and adding entry into feature table for {0}...'.format(featureName))
         query = """
-                insert into featuresList2 (feature, name) values ("{0}" , "{1}")
+                insert into featuresList (feature, name) values ("{0}" , "{1}")
                 """.format(slaveQuery, featureName)
         cursor.execute(query)
         cnx.commit()
         query = """
-                alter table featureVectors
+                alter table inputvectors
                 add column {0} decimal(7,4);
                 """.format(featureName)
         cursor.execute(query)
@@ -145,8 +145,8 @@ shutdownLocalSQL()
 createSQLContainer(sqlLauncher)
 swarmsetup(swarmStart, slaveLauncher, aggregatorLauncher, slaveReplicas, aggregatorReplicas)
 while 1:
-        ## monitor queue size once every 5 seconds
-        time.sleep(5)
+        ## monitor queue size once every 10 seconds
+        time.sleep(10)
         status1 = channel.queue_declare(queue='data', passive=True)
         status2 = channel.queue_declare(queue='aggregator', passive=True)
         ## clean up if queues are both empty
