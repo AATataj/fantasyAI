@@ -100,7 +100,7 @@ cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='127.0
 cursor = cnx.cursor()
 
 # read query, feature name, start and end years from json file:
-with open('newFeature.json') as json_file:
+with open('/home/slick/fantasy/newFeature.json') as json_file:
         data = json.load(json_file)
         features = data['features']
         slaveReplicas = data['slaveReplicas']
@@ -145,12 +145,13 @@ shutdownLocalSQL()
 createSQLContainer(sqlLauncher)
 swarmsetup(swarmStart, slaveLauncher, aggregatorLauncher, slaveReplicas, aggregatorReplicas)
 while 1:
-        ## monitor queue size once every 10 seconds
-        time.sleep(10)
+        ## monitor queue size once every 5 seconds
+        time.sleep(5)
         status1 = channel.queue_declare(queue='data', passive=True)
         status2 = channel.queue_declare(queue='aggregator', passive=True)
         ## clean up if queues are both empty
         if status1.method.message_count == 0 and status2.method.message_count == 0:
+                time.sleep(30)
                 break
 cleanupSQL(teardown)
 cleanupSwarm(teardown2)

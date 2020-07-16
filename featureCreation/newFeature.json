@@ -3,32 +3,32 @@
     "aggregatorReplicas" : 3,
     "features" : [ 
         {
-            "featureName" : "astAvg7Days",
-            "query" :   "select AVG(ast) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 7 day);",
+            "featureName" : "stlAvg7Days",
+            "query" :   "select AVG(stl) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 7 day);",
             "startYear" : 1980,
             "endYear" : 2019
         },
         {
-            "featureName" : "astAvg14Days",
-            "query" :   "select AVG(ast) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 14 day);",
+            "featureName" : "stlAvg14Days",
+            "query" :   "select AVG(stl) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 14 day);",
             "startYear" : 1980,
             "endYear" : 2019
         },
         {
-            "featureName" : "astAvg30Days",
-            "query" :   "select AVG(ast) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 30 day);",
+            "featureName" : "stlAvg30Days",
+            "query" :   "select AVG(stl) from boxscores where playerID = {1} and date < '{0}' and date >= date_sub('{0}', interval 30 day);",
                         "startYear" : 1980,
                         "endYear" : 2019
         },
         {
-            "featureName" : "astAvgSeason",
-            "query" : "select avg(ast) from boxscores where date < '{0}' and date >= '{2}' and playerID = {1};",
+            "featureName" : "stlAvgSeason",
+            "query" : "select avg(stl) from boxscores where date < '{0}' and date >= '{2}' and playerID = {1};",
             "startYear" : 1980,
             "endYear" : 2019
         },
         {
-            "featureName" : "astAvgCareer",
-            "query" : "select avg(ast) from boxscores where date < '{0}' and playerID = {1};",
+            "featureName" : "stlAvgCareer",
+            "query" : "select avg(stl) from boxscores where date < '{0}' and playerID = {1};",
             "startYear" : 1980,
             "endYear" : 2019
         }
