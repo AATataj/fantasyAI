@@ -13,7 +13,6 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-print (tf.__version__)
 
 import tensorflow_docs as tfdocs
 import tensorflow_docs.plots
@@ -21,9 +20,6 @@ import tensorflow_docs.plots
 ##
 ## This is gonna be the sentiment analysis of player availability
 ## Starting tomorrow this is the next focus.
-## Afterward, we'll work on quickening up features processing
-## and look into creating a k8s cluster here at home
-## :D :D :D
 ##
 
 #   Strategy:
@@ -101,6 +97,27 @@ def createSentimentData(cnx):
          
     
     print (sentimentData.head())
+    # insert into availabilityData table
+    for row in range(len(sentimentData)):
+        if(pd.isna(sentimentData.iloc[row]['recentTitle'])):
+            sentimentData.at[row, 'recentTitle'] = ""
+        if(pd.isna(sentimentData.iloc[row]['recentContent'])):
+            sentimentData.at[row, 'recentContent'] = ""
+        query = """
+                insert into availabilityData values ({0}, "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", {7});
+                """.format(
+                        sentimentData.iloc[row]['playerID'],
+                        sentimentData.iloc[row]['name'],
+                        sentimentData.iloc[row]['date'],
+                        sentimentData.iloc[row]['home'],
+                        sentimentData.iloc[row]['away'],
+                        sentimentData.iloc[row]['recentTitle'].replace('"', '\\"'),
+                        sentimentData.iloc[row]['recentContent'].replace('"', '\\"'),
+                        sentimentData.iloc[row]['played'] 
+                        )
+        cursor.execute(query)
+        
+    cnx.commit()
     
 
     """query = 

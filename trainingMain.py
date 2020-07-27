@@ -5,7 +5,6 @@ from matchup import matchup
 from rotoworldScraper import updateRoto
 from liveBoxScrape import scrapeScores
 from liveBoxScrape import updatePlayerIDs
-from features import addNewFeature
 from linearRegression import linReg
 from sentiment import createSentimentData
 from compileRosters import setRostersRAM
