@@ -1,4 +1,4 @@
-import time, datetime
+import time, datetime, datetime
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,11 +16,22 @@ import pdb
 ## This is a 'next season' upgrade.  
 def updateRoto(cnx):
     #get date of latest entry
+    
+    
     cursor = cnx.cursor()
     query = "select max(date) from rotoworld"
     cursor.execute(query)
     maxDate = cursor.fetchone()
-    
+
+    updateStartDate = maxDate[0]
+    updateEndDate = datetime.datetime.today()
+    totalDays = (updateEndDate - updateStartDate).days
+    progress = 0
+    print ("start date value : " + str(updateStartDate) + " type : " + str(type(updateStartDate)))
+    print ("current date value :" + str(updateEndDate) + " type : " + str(type(updateEndDate)))
+    print ("total Days : " + str(totalDays))
+    pdb.set_trace()
+
     #connect to rotoworld
     driver = webdriver.Chrome('/usr/bin/chromedriver')
     chrome_opts = Options()
