@@ -1,4 +1,4 @@
-import time, datetime
+import time, datetime, json
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -7,15 +7,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import mysql.connector
 from datetime import date
+from channels.generic.websocket import WebsocketConsumer
 import unidecode
 import pdb
 
 
-def scrapeScores(cnx):
+def scrapeScores(cnx, socket=None):
     cursor = cnx.cursor()
     query = "select max(date) from boxscores"
     cursor.execute(query)
     maxDate = cursor.fetchone()
+
+    ## variables for progress bar
+    updateStartDate = maxDate[0]
+    updateEndDate = datetime.datetime.today()
+    totalDays = (updateEndDate - updateStartDate).days
+    progress = 0
+    ## /progress bar vars
 
     print (str(type(maxDate)))
     if maxDate[0].month > 9:

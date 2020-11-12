@@ -24,10 +24,12 @@ def updateRoto(cnx, socket=None):
     cursor.execute(query)
     maxDate = cursor.fetchone()
 
+    ## variables for progress bar
     updateStartDate = maxDate[0]
     updateEndDate = datetime.datetime.today()
     totalDays = (updateEndDate - updateStartDate).days
     progress = 0
+    ## /progress bar vars
     
 
     #connect to rotoworld
