@@ -1,20 +1,21 @@
-import time, datetime, datetime
+import time, datetime, datetime, json
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from channels.generic.websocket import WebsocketConsumer
 import mysql.connector
 
-import pdb
+
 
 ## I will have to use an intermediary table for updates before committing 
 ## to the rotoworld live table to save execution time on indexing the players
 ## against the playerHashes table like I already do for the boxscores.  
 ## But for now, the rotoworld table is small, and thus not a huge performance hit.
 ## This is a 'next season' upgrade.  
-def updateRoto(cnx):
+def updateRoto(cnx, socket=None):
     #get date of latest entry
     
     
@@ -27,10 +28,7 @@ def updateRoto(cnx):
     updateEndDate = datetime.datetime.today()
     totalDays = (updateEndDate - updateStartDate).days
     progress = 0
-    print ("start date value : " + str(updateStartDate) + " type : " + str(type(updateStartDate)))
-    print ("current date value :" + str(updateEndDate) + " type : " + str(type(updateEndDate)))
-    print ("total Days : " + str(totalDays))
-    pdb.set_trace()
+    
 
     #connect to rotoworld
     driver = webdriver.Chrome('/usr/bin/chromedriver')
@@ -78,14 +76,27 @@ def updateRoto(cnx):
                 articleSummary = articleSummary.replace('"', "")
                 articleSummary = articleSummary.replace("'", "")
 
+                ## send websocket update
+                if socket != None:
+                    if progress != round(100 - (((checkDate - updateStartDate).days)/totalDays) * 100, 1):
+                        progress = round(100 - (((checkDate - updateStartDate).days)/totalDays) * 100, 1)
+                        socket.send(text_data=json.dumps({
+                            'progress': progress
+                        }))
+                ## /update
+    
+
                 #STR_TO_DATE('{4}', "%Y-%m-%d %H:%i %p"))
                 query = """insert into rotoworld (name, posTeam, title, content, date) 
                         values ("{0}", "{1}", "{2}", "{3}", "{4}");
                         """.format(playerName, positionTeam, articleTitle, articleSummary, checkDate.strftime("%Y-%m-%d %H:%M"))
                 print (playerName + " : " + positionTeam + "  : " + artcleDate)
-                #pdb.set_trace()
-                cursor.execute(query)
-                cnx.commit()
+                
+                #########
+                # uncomment these
+                #########
+                #cursor.execute(query)
+                #cnx.commit()
             
             if (checkDate <= maxDate[0]):
                 break
@@ -142,8 +153,8 @@ def updateRoto(cnx):
             """
             
 
-    cursor.execute(query)
-    cnx.commit()
+    ###########cursor.execute(query)
+    ###########cnx.commit()
 
     # we need manual fixes for luka doncic, juancho hernangomez, taurean prince and jj redick cuz 
     # the names don't match boxscores data and it's never easy...
