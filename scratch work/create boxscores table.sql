@@ -171,9 +171,6 @@ inner join
 (select name, dob, playerID from playerHashes where name in (select name from playerHashes group by name having count(name)>1)) t2
 on replace(t1.name, 'Jr.', '') = t2.name 
 
--- find all players left to map:
-select distinct(name) from boxscores where nbaID is null;
-
 -- map the II's and III's
 select t2.name, t1.name, t2.playerID, t2.dob, t1.nbaID 
 from (select name, nbaID from nbaHashes where name like '% II') as t1
@@ -181,3 +178,22 @@ inner join
 playerHashes as t2
 on replace(t1.name, ' II', '')=t2.name 
 
+-- find all the matches with '.' in the names
+-- last backed up before this
+update nbaHashes
+inner join 
+(select t2.name n1, t1.name as n2, t2.playerID, t2.dob, t1.nbaID 
+from (select name, nbaID, playerID from nbaHashes where playerID is null) as t1 
+inner join  (select * from playerHashes where name like '%.%') as t2 
+on replace(t1.name, '.', '') = replace(t2.name, '.', '')) as t3
+on t3.nbaID = nbaHashes.nbaID
+set nbaHashes.playerID = t3.playerID, nbaHashes.dob = t3.dob 
+
+-- update the map 
+update boxscores t1
+inner join nbaHashes t2
+on t1.playerID = t2.playerID
+set t1.nbaID = t2.nbaID
+
+-- find all players left to map:
+select distinct(name) from boxscores where nbaID is null;
