@@ -135,7 +135,7 @@ on t2.name = t1.name
 set t2.dob = t1.dob, t2.playerID = t1.playerID
 
 -- find all sr's and jr's
--- not currently correct
+-- not currently working
 select t1.name, dob, playerID
 from (select name, dob, playerID 
 	from playerHashes 
@@ -144,3 +144,14 @@ from (select name, dob, playerID
 inner join 
 (select name, college, nbaID from nbaHashes where name like '%Jr.') as t2
 on t1.name = replace(t2.name, 'Jr.', '');
+
+-- match jr's to their corresponding playerID values
+select t1.name, nbaID 
+from (select name, college, nbaID from nbaHashes where name like '%Jr.') as t1
+inner join 
+(select name, dob, playerID from playerHashes )
+
+update boxscores t1
+inner join nbaHashes t2
+on t1.playerID = t2.playerID
+set t1.nbaID = t2.nbaID
