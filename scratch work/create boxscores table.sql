@@ -133,3 +133,14 @@ inner join (select name, dob, playerID from playerHashes where name in
 (select name from playerHashes group by name having count(name)=1)) as t1
 on t2.name = t1.name
 set t2.dob = t1.dob, t2.playerID = t1.playerID
+
+-- find all sr's and jr's
+-- not currently correct
+select t1.name, dob, playerID
+from (select name, dob, playerID 
+	from playerHashes 
+	where name in (select name from playerHashes group by name having count(name)=2)
+) as t1
+inner join 
+(select name, college, nbaID from nbaHashes where name like '%Jr.') as t2
+on t1.name = replace(t2.name, 'Jr.', '');
