@@ -124,3 +124,12 @@ b1.date >= '2017-10-01'
 
 select count(distinct(date)) from boxscores
 where 
+
+-- All values with name is unique
+select name, dob, playerID from playerHashes where name in (select name from playerHashes group by name having count(name)=1);
+-- update based on straight name match out of the list of unique names
+update nbaHashes t2
+inner join (select name, dob, playerID from playerHashes where name in 
+(select name from playerHashes group by name having count(name)=1)) as t1
+on t2.name = t1.name
+set t2.dob = t1.dob, t2.playerID = t1.playerID
