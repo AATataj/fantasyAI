@@ -17,7 +17,7 @@ cursor = cnx.cursor()
 
 driver = webdriver.Chrome('/usr/bin/chromedriver')
 chrome_opts = Options()
-chrome_opts.add_argument("--headless")
+#chrome_opts.add_argument("--headless")
 driver = webdriver.Chrome('/usr/bin/chromedriver', options=chrome_opts)
 
 driver.get("https://www.nba.com/players")
@@ -39,6 +39,7 @@ playerTable = driver.find_element_by_class_name("PlayerList_playerTable__3SEob")
 tableRows = driver.find_elements_by_tag_name("tr")
 print(len(tableRows))
 while (1):
+    tableRows = driver.find_elements_by_tag_name("tr")
     for row in tableRows :
         if row != tableRows[0]:
             name = row.find_elements_by_tag_name('td')[0].find_elements_by_tag_name('p')[0].text
@@ -48,13 +49,13 @@ while (1):
             college = row.find_elements_by_tag_name('td')[6].text
             print(name + " " + college + " " + nbaID) 
             query = """
-                    insert into nbaHashes (name, college, nbaID) values ('{0}', '{1}', {2});
+                    insert into nbaHashes (name, college, nbaID) values ("{0}", "{1}", {2});
                     """.format(name, college, nbaID)
             cursor.execute(query)
     nextButton = driver.find_elements_by_class_name("Pagination_button__1MPZe")
     if nextButton[1].is_enabled():
         time.sleep(4)
-        nextButton.click()
+        nextButton[1].click()
     else:
         break
 
