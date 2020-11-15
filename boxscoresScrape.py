@@ -10,4 +10,16 @@ from datetime import date
 from channels.generic.websocket import WebsocketConsumer
 import unidecode
 import pdb
+from channels.generic.websocket import WebsocketConsumer
 
+def scrape (socket=None):  #def scrape(cnx, socket=None):
+    cnx = mysql.connector.connect(user="slick", password = "muresan44", host ='127.0.0.1', database='nba')
+    cursor = cnx.cursor()
+    maxDate = findMaxDate(cursor)
+    print(maxDate)
+    return
+
+def findMaxDate(cursor):
+    query = "select max(date) from boxscores"
+    cursor.execute(query)
+    return cursor.fetchone()
