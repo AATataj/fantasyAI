@@ -47,8 +47,26 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
             time.sleep(3)
         except:
             break
+    
+    tableRows= driver.find_elements_by_tag_name("tr")
 
-    print("we broke out of the loop...yay!")
+   """
+   NOTE : NBA.COM doesn't label the <td> elements in it's stats tables.
+          In case they do something dum like changing the order/content 
+          of those tables, this is the current map between indices -> categories  
+        0: player name  6: pts  12: 3%  18: trb 24: +/- 
+        1: team         7: fgm  13: ftm 19: ast
+        2: date         8: fga  14: fta 20: stl
+        3: opp          9: fg%  15: ft% 21: blk
+        4: w/l          10:3pm  16: orb 22: tov
+        5: mins         11:3pa  17: drb 23: pf
+   """
+    for row in tableRows:
+        if row != tableRows[0]:
+            statLine = row.find_elements_by_tag_name("td")
+            team = statLine[1].text
+            
+
     time.sleep(10)
     return
 
