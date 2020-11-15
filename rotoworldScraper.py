@@ -33,7 +33,7 @@ def updateRoto(cnx, socket=None):
     
 
     #connect to rotoworld
-    driver = webdriver.Chrome('/usr/bin/chromedriver')
+    #driver = webdriver.Chrome('/usr/bin/chromedriver')
     chrome_opts = Options()
     chrome_opts.add_argument("--headless")
     driver = webdriver.Chrome('/usr/bin/chromedriver', options=chrome_opts)
