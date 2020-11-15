@@ -197,3 +197,8 @@ set t1.nbaID = t2.nbaID
 
 -- find all players left to map:
 select distinct(name) from boxscores where nbaID is null;
+
+select playerID, name from playerHashes
+where not exists (select 1 from nbaHashes where nbaHashes.playerID=playerHashes.playerID);
+
+--done with the new map.....let's not do this ever again
