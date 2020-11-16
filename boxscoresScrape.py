@@ -1,4 +1,4 @@
-import time, datetime, json
+import time, datetime, json, re
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -50,7 +50,7 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
     
     tableRows= driver.find_elements_by_tag_name("tr")
 
-   """
+    """
    NOTE : NBA.COM doesn't label the <td> elements in it's stats tables.
           In case they do something dum like changing the order/content 
           of those tables, this is the current map between indices -> categories  
@@ -60,13 +60,15 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
         3: opp          9: fg%  15: ft% 21: blk
         4: w/l          10:3pm  16: orb 22: tov
         5: mins         11:3pa  17: drb 23: pf
-   """
+    """
     for row in tableRows:
         if row != tableRows[0]:
             statLine = row.find_elements_by_tag_name("td")
+            name = statLine[0].text
+            nbaID = statLine[0].find_element_by_tag_name('a').get_attribute("href")
+            nbaID = re.sub("\D", "", nbaID)
             team = statLine[1].text
-            
-
+            print (name + "," + str(nbaID) +"," + team)
     time.sleep(10)
     return
 
