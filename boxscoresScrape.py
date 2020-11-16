@@ -68,7 +68,50 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
             nbaID = statLine[0].find_element_by_tag_name('a').get_attribute("href")
             nbaID = re.sub("\D", "", nbaID)
             team = statLine[1].text
-            print (name + "," + str(nbaID) +"," + team)
+            date = statLine[2].text
+            opponent = statLine[3].text[-3:]
+            if statLine[3].text[4]=='@':
+                homeAway = '@'
+            else:
+                homeAway = ""
+            result = statLine[4].text
+            mins = statLine[5].text
+            pts = statLine[6].text
+            fgm = statLine[7].text
+            fga = statLine[8].text
+            fgPer = statLine[9].text
+            threefgm = statLine[10].text
+            threefga = statLine[11].text
+            threefgPer = statLine[12].text
+            ftm = statLine[13].text
+            fta = statLine[14].text
+            ftPer = statLine[15].text
+            orb = statLine[16].text
+            drb = statLine[17].text
+            trb = statLine[18].text
+            ast = statLine[19].text
+            stl = statLine[20].text
+            blk = statLine[21].text
+            tov = statLine[22].text
+            pf = statLine[23].text
+            plusMinus = statLine[24].text
+            twofgm = fgm - threefgm
+            twofga = fga - threefga
+            twofgPer = twofgm / twofga
+            query = """
+                    insert into boxscores 
+                    (name, date, team, homeAway, opponent, result, minutes, 
+                    fgm, fga, fgPer, 2fgm, 2fga, 2fgPer, 3fgm, 3fga, 3fgPer, ftm, fta, ftPer, 
+                    orb, drb, trb, ast, stl, blk, tov, pf, pts, nbaID, plusMinus)
+                    values ("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},{9},{10}
+                    {11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},
+                    {22},{23},{24},{25},{26},{27},{28},{29})    
+                    """.format(name, date, team, homeAway, opponent, result, mins,
+                        fgm, fga, fgPer, twofgm, twofga, twofgPer, threefgm, threefga, threefgPer,
+                        ftm, fta, ftPer, orb, drb, trb, ast, blk, tov, pf, pts, nbaID, plusMinus 
+                    )
+            print(query)
+            #cursor.execute(query)
     time.sleep(10)
     return
 
