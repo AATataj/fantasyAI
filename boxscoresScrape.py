@@ -24,10 +24,10 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
     # get thru accept cookies popup
 
     linkText = "https://www.nba.com/stats/search/player-game/?SeasonType=Regular%20Season"
-    #linkText += "&DateFrom="+str(maxDateBox[0].month)+"%2F"+str(maxDateBox[0].day)+"%2F"+str(maxDateBox[0].year)
-    linkText += "&DateFrom="+str(8)+"%2F"+str(11)+"%2F"+str(2020)
-    #linkText += "&DateTo="+str(today.month)+"%2F"+str(today.day)+"%2F"+str(today.year)
-    linkText += "&DateTo="+str(8)+"%2F"+str(11)+"%2F"+str(2020)
+    linkText += "&DateFrom="+str(maxDateBox[0].month)+"%2F"+str(maxDateBox[0].day)+"%2F"+str(maxDateBox[0].year)
+    #linkText += "&DateFrom="+str(8)+"%2F"+str(11)+"%2F"+str(2020)
+    linkText += "&DateTo="+str(today.month)+"%2F"+str(today.day)+"%2F"+str(today.year)
+    #linkText += "&DateTo="+str(8)+"%2F"+str(11)+"%2F"+str(2020)
     linkText += "&dir=1&sort=GAME_DATE"
     print (linkText)
     driver.get(linkText)
