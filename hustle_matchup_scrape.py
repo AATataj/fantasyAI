@@ -140,13 +140,55 @@ def getMatchups (driver, cnx, cursor, date, socket=None):
                 table = driver.find_element_by_tag_name('tbody')
                 tableRows = table.find_elements_by_tag_name('tr')
                 for row in range(len(tableRows)):
-                    print(tableRows[row].text)
-                    # set my query here
+                    offPlayer = tableRows[row].find_elements_by_tag_name('td')[0].text
+                    offnbaID = tableRows[row].find_elements_by_tag('td')[0].find_elements_by_tag('a').get_attribute('href')
+                    offTeam = tableRows[row].find_elements_by_tag_name('td')[1].text
+                    defPlayer = tableRows[row].find_elements_by_tag_name('td')[2].text
+                    defnbaID = tableRows[row].find_elements_by_tag('td')[2].find_elements_by_tag('a').get_attribute('href')
+                    defTeam = tableRows[row].find_elements_by_tag_name('td')[3].text
+                    mins = tableRows[row].find_elements_by_tag_name('td')[4].text
+                    partial_poss = tableRows[row].find_elements_by_tag_name('td')[5].text
+                    per_def_time = tableRows[row].find_elements_by_tag_name('td')[6].text
+                    per_off_time = tableRows[row].find_elements_by_tag_name('td')[7].text
+                    per_both_time = tableRows[row].find_elements_by_tag_name('td')[8].text
+                    player_pts = tableRows[row].find_elements_by_tag_name('td')[9].text
+                    team_pts = tableRows[row].find_elements_by_tag_name('td')[10].text
+                    ast = tableRows[row].find_elements_by_tag_name('td')[11].text
+                    tov = tableRows[row].find_elements_by_tag_name('td')[12].text
+                    blk = tableRows[row].find_elements_by_tag_name('td')[13].text
+                    fgm = tableRows[row].find_elements_by_tag_name('td')[14].text
+                    fga = tableRows[row].find_elements_by_tag_name('td')[15].text
+                    fgPer = tableRows[row].find_elements_by_tag_name('td')[16].text
+                    threefgm = tableRows[row].find_elements_by_tag_name('td')[17].text
+                    threefga = tableRows[row].find_elements_by_tag_name('td')[18].text
+                    threefgPer = tableRows[row].find_elements_by_tag_name('td')[19].text
+                    ftm = tableRows[row].find_elements_by_tag_name('td')[20].text
+                    fta = tableRows[row].find_elements_by_tag_name('td')[21].text
+                    sfl = tableRows[row].find_elements_by_tag_name('td')[22].text
+                    query = """
+                            insert into matchups
+                            ("off_player", "team1", "def_player", "team2", "mins", 
+                            partial_poss, per_def_time, per_off_time, per_time_both_on,
+                            player_pts, team_pts, ast, tov, blk, fgm, fga, fgPer, 
+                            3fgm, 3fga, 3fgPer, ftm, fta, sfl, 
+                            off_player_nbaID, def_player_nbaID, "date")
+                            """.format(
+                                offPlayer, offTeam, defPlayer, defTeam, mins,
+                                partial_poss, per_def_time, per_off_time, per_both_time,
+                                player_pts, team_pts, ast, tov, blk, fgm, fga, fgPer,
+                                threefgm, threefga, threefgPer, ftm, fta, sfl,
+                                offnbaID, defnbaID, formattedDate
+                            )
+                    print(query)
+                    #cursor.execute(query)
+
                 if pagnation[1].is_enabled():
                     pagnation[1].click()
                     table = None
                 else :
                     break
+    
+    #cnx.commit()
     return
 
 
