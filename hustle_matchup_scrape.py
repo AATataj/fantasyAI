@@ -1,7 +1,7 @@
 import time, datetime, json, re
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -22,12 +22,12 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
     #maxDateHustle = findMaxDate(cursor)
     ##
     maxDateHustle = []
-    maxDateHustle.append(datetime.date(2003, 2, 20))
+    maxDateHustle.append(datetime.date(2018, 2, 20))
     ##
 
     #today = datetime.date.today()
     ##
-    today = datetime.date(2003, 3, 5) 
+    today = datetime.date(2018, 3, 5) 
     ##
 
     # set up the chromedriver
@@ -70,11 +70,31 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
                 tableRows[row].find_elements_by_tag_name('td')[1].text,
                 tableRows[row].find_elements_by_tag_name('td')[2].find_element_by_tag_name('a').get_attribute("href")))
 
-    print(str(games[4]))
 
-    driver.get(str(games[4][2]))
-    pdb.set_trace()
+    for game in games:
+        driver.get(str(game[2]))
+        getHustle(driver, cnx, cursor, game[1], socket)
+
     driver.quit()
+    return
+
+def getHustle (driver, cnx, cursor, date, socket=None):
+    select = Select(driver.find_element_by_name('splits'))
+    print(date)
+    for option in select.options:
+        if 'Hustle' == option.text:
+            select.select_by_value('hustle')
+            tableRows = driver.find_elements_by_tag_name('tr')
+            for row in range(int(len(tableRows)/2)):
+                if tableRows[row] != tableRows[0]:
+                    print(tableRows[row].text)
+    ## error here, stale element... ?
+    pdb.set_trace()
+
+    # tableRows = driver.find_elements_by_tag_name('tr')
+    # for row in range(int(len(tableRows)/2)):
+    #     print(tableRows[row].text)
+    
     return
 
 
