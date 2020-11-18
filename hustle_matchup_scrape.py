@@ -73,8 +73,9 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
 
     for game in games:
         driver.get(str(game[2]))
-        getHustle(driver, cnx, cursor, game[1], socket)
-
+        # getHustle(driver, cnx, cursor, game[1], socket)
+        getMatchups(driver, cnx, cursor, game[1], socket)
+        pdb.set_trace()
     driver.quit()
     return
 
@@ -126,6 +127,27 @@ def getHustle (driver, cnx, cursor, date, socket=None):
 
 def getMatchups (driver, cnx, cursor, date, socket=None):
     # table layout is different form matchups..... :S
+    select = Select(driver.find_element_by_name('splits'))
+    print(date)
+    formattedDate = datetime.date(int(date[-4:]), int(date[3:5]), int(date[:2]))
+    print (formattedDate)
+    for option in select.options:
+        if 'Matchups' == option.text:
+            select.select_by_value('matchups')
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'Pagination_button__1MPZe')))
+            pagnation = driver.find_elements_by_class_name('Pagination_button__1MPZe')
+            while (1):
+                table = driver.find_element_by_tag_name('tbody')
+                tableRows = table.find_elements_by_tag_name('tr')
+                for row in range(len(tableRows)):
+                    print(tableRows[row].text)
+                    # set my query here
+                if pagnation[1].is_enabled():
+                    pagnation[1].click()
+                    table = None
+                else :
+                    break
+    return
 
 
 def findMaxDate(cursor):
