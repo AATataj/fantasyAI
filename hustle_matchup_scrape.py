@@ -80,22 +80,52 @@ def scrape (socket=None):  #def scrape(cnx, socket=None):
 
 def getHustle (driver, cnx, cursor, date, socket=None):
     select = Select(driver.find_element_by_name('splits'))
-    print(date)
+    formattedDate = datetime.date(int(date[:4]), int(date[5:7]), int(date[-2:]))
     for option in select.options:
         if 'Hustle' == option.text:
             select.select_by_value('hustle')
-            tableRows = driver.find_elements_by_tag_name('tr')
-            for row in range(int(len(tableRows)/2)):
-                if tableRows[row] != tableRows[0]:
-                    print(tableRows[row].text)
-    ## error here, stale element... ?
+            tables = driver.find_elements_by_tag_name('tbody')
+            for table in tables:
+                tableRows = table.find_elements_by_tag_name('tr')
+                for row in range(len(tableRows)):
+                    player = tableRows[row].find_elements_by_tag('td')[0].text
+                    nbaID = tableRows[row].find_elements_by_tag('td')[0].find_elements_by_tag('a').get_attribute('href')
+                    mins = tableRows[row].find_elements_by_tag('td')[1].text
+                    screen_ast = tableRows[row].find_elements_by_tag('td')[2].text
+                    screen_ast_pts = tableRows[row].find_elements_by_tag('td')[3].text
+                    deflections = tableRows[row].find_elements_by_tag('td')[4].text
+                    off_loose_balls = tableRows[row].find_elements_by_tag('td')[5].text
+                    def_loose_balls = tableRows[row].find_elements_by_tag('td')[6].text
+                    loose_balls = tableRows[row].find_elements_by_tag('td')[7].text
+                    charges_drawn = tableRows[row].find_elements_by_tag('td')[8].text
+                    two_contests = tableRows[row].find_elements_by_tag('td')[9].text
+                    three_contests = tableRows[row].find_elements_by_tag('td')[10].text
+                    shot_contests = tableRows[row].find_elements_by_tag('td')[11].text
+                    off_boxouts = tableRows[row].find_elements_by_tag('td')[12].text
+                    def_boxouts = tableRows[row].find_elements_by_tag('td')[13].text
+                    boxouts = tableRows[row].find_elements_by_tag('td')[14].text
+                    query = """
+                            insert into hustle
+                            (nbaID, name, date, mins, screen_ast, screen_ast_pts, deflections,
+                            off_loose_balls, def_loose_balls, loose_balls, charges_drawn, 
+                            2s_contested, 3s_contested, contested_shots, off_box_outs,
+                            def_box_outs, box_outs)
+                            values ({0}, "{1}", "{2}", "{3}", {4}, {5}, {6}, {7}, {8},
+                            {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16})
+                            """.format(nbaID, player, formattedDate, mins, screen_ast,
+                                screen_ast_pts, deflections, off_loose_balls, def_loose_balls,
+                                loose_balls, charges_drawn, two_contests, three_contests,
+                                shot_contests, off_boxouts, def_boxouts, boxouts  
+                            )
+                    print(query)
+                    #cursor.execute(query)
+            break
     pdb.set_trace()
-
-    # tableRows = driver.find_elements_by_tag_name('tr')
-    # for row in range(int(len(tableRows)/2)):
-    #     print(tableRows[row].text)
-    
+    #cnx.commit()
     return
+
+def getMatchups (driver, cnx, cursor, date, socket=None):
+    # table layout is different form matchups..... :S
 
 
 def findMaxDate(cursor):
