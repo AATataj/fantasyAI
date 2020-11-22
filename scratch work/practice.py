@@ -164,3 +164,35 @@ def insertionSort(arr):
                 arr[i] = arr[j]
                 arr[j]=temp
     return arr
+
+# quicksort complexity nlogn
+def quickSort(arr, lowIndex, hiIndex):
+    #pdb.set_trace()
+    if lowIndex < hiIndex:
+        partitionIndex = partition(arr, lowIndex, hiIndex)
+        quickSort(arr, lowIndex, partitionIndex-1)
+        quickSort(arr, partitionIndex+1, hiIndex)
+def partition(arr, lowIndex, hiIndex):
+    # set the partition value to last element
+    partitionValue = arr[hiIndex]
+    # j is used as a an index for the number of elements less than the partition value
+    j=lowIndex
+    # loop from low bound to high
+    for i in range(lowIndex, hiIndex):
+        # if the current array value is less than the partition value
+        if arr[i] < partitionValue:
+            # swap
+            temp = arr[j]
+            arr[j] = arr[i]
+            arr[i] = temp
+            # increment the number of elements less than the partition value
+            j+=1
+            print(arr)
+    print(arr)
+    # swap the partition element to it's correct position using the counter 
+    temp=arr[j]
+    arr[j]=arr[hiIndex]
+    arr[hiIndex]=temp
+    # return that partition value for recursive calls
+    return j
+
