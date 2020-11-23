@@ -165,7 +165,7 @@ def insertionSort(arr):
                 arr[j]=temp
     return arr
 
-# quicksort complexity nlogn
+# quicksort complexity worst : n^2, avg : nlogn
 def quickSort(arr, lowIndex, hiIndex):
     #pdb.set_trace()
     if lowIndex < hiIndex:
@@ -196,3 +196,17 @@ def partition(arr, lowIndex, hiIndex):
     # return that partition value for recursive calls
     return j
 
+def removeFromList(l, t):
+    if l == None:
+        return None
+    currentNode = l
+    while (currentNode != None):
+        if currentNode.value == t and currentNode != l:
+            lastNode.next = currentNode.next
+        else:
+            lastNode = currentNode
+        currentNode = currentNode.next
+    if l.value == t:
+        return l.next
+    else :
+        return l
