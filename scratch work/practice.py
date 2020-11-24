@@ -253,3 +253,65 @@ def lenLongestSubstr(string):
         if length > max:
             max = length
     return max
+
+def testList ():
+    class ListNode:
+        def __init__(self, val=0, next=None):
+            self.val = val
+            self.next = next
+    LastNode=None
+    for i in range(5,0,-1):
+        newNode = ListNode(i, LastNode)
+        LastNode = newNode
+        if i == 1 :
+            head = newNode
+    currentNode=head
+    while(1):
+        print(currentNode.val)
+        if currentNode.next!=None:
+            currentNode=currentNode.next
+        else:
+            break
+    currentNode = removeNthLast(head, 4)
+    print ("results")
+    while(1):
+        print(currentNode.val)
+        if currentNode.next!=None:
+            currentNode=currentNode.next
+        else:
+            break
+    return
+
+def removeNthLast(head, n):
+    if head == None:
+        return None
+    if head.next==None and n==1:
+        return None
+    currentNum = 1
+    currentNode = head
+    prevNode = None
+    while (1):
+        currentNum+=1
+        # when we get to n elements into list
+        # assign/increment prevNode
+        if currentNum == (n+1):
+            prevNode=head
+        elif currentNum > (n+1):
+            prevNode=prevNode.next
+        # increment currentNode afterwards
+        currentNode=currentNode.next
+        # if end of list
+        if currentNode.next==None:
+            # if end of list reached at the n'th element
+            if currentNum == n:
+                #reassign head
+                head = head.next
+                #prevNode.next=None
+                break
+            else:
+                # otherwise, cur out the n'th element
+                prevNode.next=prevNode.next.next
+                break
+    
+    return head
+                
