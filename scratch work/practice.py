@@ -196,6 +196,7 @@ def partition(arr, lowIndex, hiIndex):
     # return that partition value for recursive calls
     return j
 
+# remove matching nodes from singly linked list
 def removeFromList(l, t):
     if l == None:
         return None
@@ -210,3 +211,45 @@ def removeFromList(l, t):
         return l.next
     else :
         return l
+
+# power set of a set that contains no duplicates in the power set:
+
+def powerSet (inset):
+    setItems = {}
+    powerset = []
+    for i in range(len(inset)):
+        if inset[i] in setItems:
+            setItems[inset[i]]+=1
+        else:
+            setItems[inset[i]]=1
+    for item in setItems:
+        addSet = []
+        for numitems in range(setItems[item]):
+            addSet.append[item]
+            #powerset.append(str(item)*(numitems+1))
+            powerset.append(addSet)
+    print(powerset)
+    powerset=computePower(powerset)
+    #powerset.append([])        
+def lenLongestSubstr(string):
+    if string == "":
+        return 0
+    length = 0
+    max = 0
+    seen = {}
+    print (string)
+    for index in range(len(string)):
+        #pdb.set_trace()
+        if string[index] not in seen:
+            length+=1
+            seen[string[index]] = index    
+        else :
+            if length >= index-seen[string[index]]:
+                length= index-seen[string[index]]
+            else:
+                length+=1
+                print(str(length)+ " " + str(string[index]) + " " + str(index))
+            seen[string[index]]=index
+        if length > max:
+            max = length
+    return max
