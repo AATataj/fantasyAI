@@ -314,4 +314,25 @@ def removeNthLast(head, n):
                 break
     
     return head
+
+def searchMatrix(matrix, target):
+        row = 0
+        if matrix == [] or matrix[0]==[]:
+            return False
+        if target > matrix[len(matrix)-1][len(matrix[0])-1]:
+            return False
+        for i in range(len(matrix)):
+            if target == matrix[i][0]:
+                return True
+            if i+1 < len(matrix) and target > matrix[i][0] and target < matrix[i+1][0]:
+                row = i
+                break
+            elif i+1 == len(matrix) :
+                row = len(matrix) - 1
+                break
+        for i in range (len(matrix[row])):
+            if target == matrix[row][i]:
+                return True
+        
+        return False
                 
