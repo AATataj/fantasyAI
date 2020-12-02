@@ -335,4 +335,50 @@ def searchMatrix(matrix, target):
                 return True
         
         return False
-                
+
+## validate BST 
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        leftSubTree = rightSubTree = True
+        if root == None : 
+            return True
+        if root.right == None and root.left == None:
+            return True
+        if root.left is not None:
+            if root.left.val > root.val:
+                return False
+            else :
+                leftSubTree = Solution.isValidBST(self, root.left) and (Solution.maxSub(self, root.left) < root.val)
+        if root.right is not None:
+            if root.right.val < root.val :
+                return False
+            else :
+                rightSubTree = Solution.isValidBST(self, root.right) and (Solution.minSub(self, root.right) > root.val)
+        if rightSubTree and leftSubTree:
+            return True
+        else :
+            return False
+    def maxSub(self, root : TreeNode) -> int:
+        node = root
+        if node.right == None:
+            return node.val
+        while(1):
+            if node.right == None:
+                return node.val
+            else:
+                node = node.right
+    def minSub(self, root : TreeNode) -> int:
+        node = root
+        if node.left == None:
+            return node.val
+        while(1):
+            if node.left == None:
+                return node.val
+            else:
+                node = node.left
