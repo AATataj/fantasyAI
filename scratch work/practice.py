@@ -390,7 +390,7 @@ class Solution:
 #         self.val = val
 #         self.left = left
 #         self.right = right
-class Solution:
+class Solution2:
     def deleteNode(self, root: TreeNode, key: int) -> TreeNode:
         # base case
         if root == None:
@@ -425,3 +425,28 @@ class Solution:
                 return node
             else:
                 node = node.left        
+
+## max depth of binary tree
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution3:
+    def maxDepth(self, root: TreeNode) -> int:
+        depth = 0
+        if root is None:
+            return 0
+        depth+=1
+        rightDepth = 0
+        leftDepth = 0
+        if root.right is not None:
+            rightDepth = Solution.maxDepth(self, root.right)
+        if root.left is not None:
+            leftDepth = Solution.maxDepth(self,root.left)
+        if rightDepth > leftDepth :
+            depth+=rightDepth
+        else:
+            depth+=leftDepth
+        return depth
