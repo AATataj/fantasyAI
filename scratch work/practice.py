@@ -382,3 +382,46 @@ class Solution:
                 return node.val
             else:
                 node = node.left
+
+## Delete node in BST
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def deleteNode(self, root: TreeNode, key: int) -> TreeNode:
+        # base case
+        if root == None:
+            return None
+        #traverse until found
+        if key > root.val and root.right is not None:
+            root.right = Solution.deleteNode(self, root.right, key)
+        elif key < root.val and root.left is not None:
+            root.left = Solution.deleteNode(self, root.left, key)
+        # if found, return the right or left chile if one child
+        # elif return min of greater side as the root
+        # else leaf node, return none  
+        elif root.val == key:
+            if root.right is not None and root.left is None :
+                return root.right
+            elif root.left is not None and root.right is None:
+                return root.left
+            elif root.left is not None and root.right is not None:
+                minNode = Solution.minSub(self, root.right)
+                minNode.right = Solution.deleteNode(self, root.right, minNode.val)
+                minNode.left = root.left
+                return minNode
+            else :
+                return None
+        return root
+    def minSub(self, root : TreeNode) -> TreeNode:
+        node = root
+        if node.left == None:
+            return node
+        while(1):
+            if node.left == None:
+                return node
+            else:
+                node = node.left        
