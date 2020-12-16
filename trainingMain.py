@@ -3,13 +3,11 @@ from team import team
 from league import league
 from matchup import matchup
 from rotoworldScraper import updateRoto
-from liveBoxScrape import scrapeScores
-from liveBoxScrape import updatePlayerIDs
 from linearRegression import linReg
 from sentiment import createSentimentData
 from compileRosters import setRostersRAM
 from compileRosters import updateRostersRAM
-
+from createAvailabilitySet import createAvail
 import pdb 
 import unidecode
 
@@ -37,7 +35,8 @@ featureQuery = """
 
 #train(cnx)
 #linReg(cnx)
-createSentimentData(cnx)
+#createSentimentData(cnx)
+createAvail(2019, cnx)
 
 #playerList = setRostersRAM(2019, cnx)
 

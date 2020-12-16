@@ -5,6 +5,8 @@ import requests
 # OnError : returns "Error" + a short description of the error or HTTP error code
 # Default store setting is 'location=0' aka, the nearest store given proximity of the request,
 # Timeout value for the get request set to 10 seconds, but this functionality has not been tested 
+# I tested this with a random non-existant store number '999999999999', the request doesn't throw an error, 
+# just returns a 0 total count on the product.  So care must be taken when inputting the store list
 
 def getAvailability (skus = [], locations = [0]):
     link = 'https://availability.dickssportinggoods.com/v1/inventoryapis/searchinventory?'
