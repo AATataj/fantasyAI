@@ -7,7 +7,7 @@ from linearRegression import linReg
 from sentiment import createSentimentData
 from compileRosters import setRostersRAM
 from compileRosters import updateRostersRAM
-from createAvailabilitySet import createAvail
+from createAvailabilitySet import createAvailTable
 import pdb 
 import unidecode
 
@@ -36,7 +36,7 @@ featureQuery = """
 #train(cnx)
 #linReg(cnx)
 #createSentimentData(cnx)
-createAvail(2019, cnx)
+createAvailTable(2019, cnx)
 
 #playerList = setRostersRAM(2019, cnx)
 
