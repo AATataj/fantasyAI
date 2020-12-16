@@ -106,6 +106,27 @@ def addGames(cnx):
                     print(schedule.iloc[i].loc['home'])
                     print(schedule.iloc[i].loc['away'])
     cnx.commit()
+    return "success!"
+
+def correctForTrades(cnx):
+    cursor = cnx.cursor()
+    ## gather nba games schedule 2019-2020:
+    query = """
+            select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
+            """
+    schedule = pd.read_sql_query(query,cnx)
+    schedule.rename(columns={'team':'away', 'opponent' : 'home'}, inplace=True)
+    del schedule['homeAway']
+    print(len(schedule))
+    print(schedule.head())
+
+    query = """
+            select nbaID, team, gameDate from availData2
+            """
+    
+
+
+    return "success!"
 
 def teamMap(posTeam):
 

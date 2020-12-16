@@ -7,7 +7,7 @@ from linearRegression import linReg
 from sentiment import createSentimentData
 from compileRosters import setRostersRAM
 from compileRosters import updateRostersRAM
-from createAvailabilitySet import createAvailTable, addGames
+from createAvailabilitySet import createAvailTable, addGames, correctForTrades
 import pdb 
 import unidecode
 
@@ -26,7 +26,8 @@ print("****************")
 #linReg(cnx)
 #createSentimentData(cnx)
 #createAvailTable(2019, cnx)
-addGames(cnx)
+#addGames(cnx)
+correctForTrades(cnx)
 #playerList = setRostersRAM(2019, cnx)
 
 #playerList = updateRostersRAM(playerList, '2020-02-01', cnx)
