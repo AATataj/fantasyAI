@@ -24,8 +24,9 @@ def createAvailTable(startYear, cnx):
                 (select name, nbaID, playerID, min(date) as date 
                 from rotoworld 
                 group by name, nbaID, playerID) as r1
-            on r2.playerID = r1.playerID and r2.date = r1.date;
-            """
+            on r2.playerID = r1.playerID and r2.date = r1.date
+            where r2.date > '{0}'
+            """.format(octMin)
     cursor.execute(query)
     results = cursor.fetchall()
     
