@@ -18,5 +18,6 @@ def createAvail(startYear, cnx):
     cursor = cnx.cursor()
     octMin = datetime.date(startYear, 10, 1)
 
+    
     print (octMin)
     return "success!" 
