@@ -25,8 +25,7 @@ def createAvailTable(startYear, cnx):
                 from rotoworld 
                 group by name, nbaID, playerID) as r1
             on r2.playerID = r1.playerID and r2.date = r1.date
-            where r2.date > '{0}'
-            """.format(octMin)
+            """#.format(octMin)
     cursor.execute(query)
     results = cursor.fetchall()
     
@@ -54,7 +53,59 @@ def createAvailTable(startYear, cnx):
             print(result[5])
             print(result[6])
     cnx.commit()
-    return "success!" 
+    return "success!"
+    
+def addGames(cnx):
+    # this function creates a new mirrored table availData2
+    # and it creates an entry for each player for each game
+    # based on the first team they played a game for that season.  
+
+    cursor = cnx.cursor()
+    ## gather nba games schedule 2019-2020:
+    query = """
+            select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
+            """
+    schedule = pd.read_sql_query(query,cnx)
+    schedule.rename(columns={'team':'away', 'opponent' : 'home'}, inplace=True)
+    del schedule['homeAway']
+    print(len(schedule))
+    print(schedule.head())  
+
+    query = """
+            select distinct(nbaID), name, team from availData;
+            """
+    players = pd.read_sql_query(query, cnx)
+
+    print(len(players))
+    print(players.head())
+
+    for i in range(len(schedule.index)):
+        #print(schedule.iloc[i].loc['home'] + " " + schedule.iloc[i].loc['away'] + " " + str(schedule.iloc[i].loc['date']))   
+        for j in range(len(players.index)):
+            if players.iloc[j].loc['team'] == schedule.iloc[i].loc['home'] or \
+                players.iloc[j].loc['team'] == schedule.iloc[i].loc['away']:
+                query = """
+                        insert into availData2
+                        (nbaID, name, team, gameDate, home, away)
+                        values ({0}, "{1}", "{2}", "{3}", "{4}", "{5}")
+                        """.format(
+                            players.iloc[j].loc['nbaID'],
+                            players.iloc[j].loc['name'],
+                            players.iloc[j].loc['team'],
+                            schedule.iloc[i].loc['date'],
+                            schedule.iloc[i].loc['home'],
+                            schedule.iloc[i].loc['away']
+                        )
+                try:
+                    cursor.execute(query)
+                except:
+                    print(players.iloc[j].loc['nbaID'])
+                    print(players.iloc[j].loc['name'])
+                    print(players.iloc[j].loc['team'])
+                    print(schedule.iloc[i].loc['date'])
+                    print(schedule.iloc[i].loc['home'])
+                    print(schedule.iloc[i].loc['away'])
+    cnx.commit()
 
 def teamMap(posTeam):
 

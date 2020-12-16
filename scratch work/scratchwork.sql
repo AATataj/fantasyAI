@@ -14,3 +14,4 @@ select * from rotoworld as r2
 inner join 
     (select name, nbaID, playerID, min(date) as date from rotoworld group by name, nbaID, playerID) as r1
 on r2.playerID = r1.playerID and r2.date = r1.date; 
+
