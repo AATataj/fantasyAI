@@ -115,16 +115,54 @@ def correctForTrades(cnx):
             select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
             """
     schedule = pd.read_sql_query(query,cnx)
-    schedule.rename(columns={'team':'away', 'opponent' : 'home'}, inplace=True)
-    del schedule['homeAway']
+    #schedule.rename(columns={'team':'away', 'opponent' : 'home'}, inplace=True)
+    #del schedule['homeAway']
     print(len(schedule))
     print(schedule.head())
 
     query = """
-            select nbaID, team, gameDate from availData2
-            """
-    
+            select b1.nbaID, min(b2.date) as d2, b1.team, b1.name
+            from boxscores as b1
+            inner join boxscores as b2
+            on b1.nbaID = b2.nbaID 
+            and b1.team != b2.team
+            and b1.date > '{0}'
+            where  b1.date < b2.date
+            group by b1.nbaID, b1.team, b1.name
+            """.format('2019-10-01')
+    datesTraded = pd.read_sql_query(query,cnx)
 
+
+
+    for i in range(len(datesTraded.index)):
+        newTeam = datesTraded.iloc[i].loc['team']
+        nbaID = datesTraded.iloc[i].loc['nbaID']
+        firstDate = datesTraded.iloc[i].loc['d2']
+        name = datesTraded.iloc[i].loc['name']
+        query = """
+                delete from availData2 
+                where nbaID = {0} 
+                and gameDate >= {1}
+                """.format(nbaID, firstDate)
+        print(query)
+        pdb.set_trace()
+        #cursor.execute(query)
+        #cnx.commit()
+        postTradeSched = pd.DataFrame(data=schedule.loc[((schedule['team']==newTeam) | \
+            (schedule['opponent']==newTeam)) & (schedule['date'] >= firstDate)])
+        for j in range(len(postTradeSched.index)):
+            away = postTradeSched.iloc[j].loc['team']
+            home = postTradeSched.iloc[j].loc['opponent']
+            query = """
+                    insert into availData2
+                    (nbaID, name, team, gameDate, home, away)
+                    values ({0}, "{1}", "{2}", "{3}", "{4}", "{5}")
+                    """.format(nbaID, name, newTeam, 
+                        postTradeSched.iloc[j].loc['date'],
+                        home,
+                        away
+                        )
+            print(query)
 
     return "success!"
 

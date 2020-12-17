@@ -15,14 +15,15 @@ inner join
 on r2.playerID = r1.playerID and r2.date = r1.date; 
 
 /*
-select most recent article title/content before game date
+all traded players this season and date of 1st game on a new team
 */
 
-select title, content, date, availData2.home, availData2.away, availData2.gameDate 
-from rotoworld
-inner join availData2
-on rotoworld.nbaID = availData2.nbaID
-where rotoworld.date < availData2.gameDate
-group by title, content, date, gameDate, rotoworld.nbaID, availData2.home, availData2.away
-having max(rotoworld.date)
-limit 1;
+select b1.nbaID, b1.name as n, min(b2.date) as d2, b1.team
+from boxscores as b1
+inner join boxscores as b2
+on b1.nbaID = b2.nbaID 
+and b1.team != b2.team
+and b1.date > '2019-10-01'
+where  b1.date < b2.date
+group by b1.name, b1.team, b1.nbaID
+
