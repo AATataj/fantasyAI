@@ -176,19 +176,26 @@ def correctAlecBurks (cnx):
             select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
             """
     schedule = pd.read_sql_query(query,cnx)
-    for i in range (len(schedule.index)):
-        if schedule.iloc[i].loc['team'] == 'GSW':
-            query = """
-                    update availData set home, away, gameDate values ("{0}", "{1}", "{2}") where nbaID =  202692 and date < '2020-02-11' 
-                     """.format(schedule.iloc[i].loc['team'], schedule.iloc[i].loc['opponent'], schedule.iloc[i].loc['date'])
-            cursor.execute(query)
-            # print(query)
-        elif schedule.iloc[i].loc['opponent'] == 'GSW':
-            query = """
-                    update availData set home, away, gameDate values ("{0}", "{1}", "{2}") where nbaID = 202692 and date < '2020-02-11'; 
-                     """.format(schedule.iloc[i].loc['team'], schedule.iloc[i].loc['opponent'], schedule.iloc[i].loc['date'])
-            cursor.execute(query)
-            # print(query)
+    query = """
+            delete from availData
+            where nbaID = 202692 and gameDate < '2020-02-11'
+            """
+    cursor.execute(query)
+    cnx.commit()
+    gswGames = pd.DataFrame(data=schedule.loc[((schedule['team']=='GSW') |
+            (schedule['opponent']=='GSW')) & (schedule['date'] < datetime.date(2020,2,11))])
+    # print(gswGames.head())
+    for i in range (len(gswGames)):
+        query = """
+                insert into availData (nbaID, name, gameDate, team, home, away)
+                values (202692, 'Alec Burks', '{0}', 'GSW', '{1}', '{2}')
+                """.format(gswGames.iloc[i].loc['date'],
+                           gswGames.iloc[i].loc['opponent'],
+                           gswGames.iloc[i].loc['team'] 
+                )
+        # print(i)
+        # print(query)
+        cursor.execute(query)
     cnx.commit()
     return "success!"
 def teamMap(posTeam):
