@@ -25,14 +25,14 @@ def createAvailTable(startYear, cnx):
                 from rotoworld 
                 group by name, nbaID, playerID) as r1
             on r2.playerID = r1.playerID and r2.date = r1.date
-            """#.format(octMin)
+            """
     cursor.execute(query)
     results = cursor.fetchall()
     
     for result in results:
         team = teamMap(result[1])
         query = """
-                insert into availData 
+                insert into tempTable 
                 (name, team, recentTitle, recentContent, reportDate, playerID, nbaID)
                 values ("{0}","{1}","{2}","{3}","{4}",{5},{6} )
                 """.format(result[0], 
@@ -56,7 +56,7 @@ def createAvailTable(startYear, cnx):
     return "success!"
     
 def addGames(cnx):
-    # this function creates a new mirrored table availData2
+    # this function creates a new mirrored table availData
     # and it creates an entry for each player for each game
     # based on the first team they played a game for that season.  
 
@@ -72,7 +72,7 @@ def addGames(cnx):
     print(schedule.head())  
 
     query = """
-            select distinct(nbaID), name, team from availData;
+            select distinct(nbaID), name, team from tempTable;
             """
     players = pd.read_sql_query(query, cnx)
 
@@ -85,7 +85,7 @@ def addGames(cnx):
             if players.iloc[j].loc['team'] == schedule.iloc[i].loc['home'] or \
                 players.iloc[j].loc['team'] == schedule.iloc[i].loc['away']:
                 query = """
-                        insert into availData2
+                        insert into availData
                         (nbaID, name, team, gameDate, home, away)
                         values ({0}, "{1}", "{2}", "{3}", "{4}", "{5}")
                         """.format(
@@ -140,21 +140,21 @@ def correctForTrades(cnx):
         firstDate = datesTraded.iloc[i].loc['d2']
         name = datesTraded.iloc[i].loc['name']
         query = """
-                delete from availData2 
+                delete from availData 
                 where nbaID = {0} 
-                and gameDate >= {1}
+                and gameDate >= '{1}'
                 """.format(nbaID, firstDate)
-        print(query)
-        pdb.set_trace()
-        #cursor.execute(query)
-        #cnx.commit()
+        #print(query)
+        #pdb.set_trace()
+        cursor.execute(query)
+        cnx.commit()
         postTradeSched = pd.DataFrame(data=schedule.loc[((schedule['team']==newTeam) | \
             (schedule['opponent']==newTeam)) & (schedule['date'] >= firstDate)])
         for j in range(len(postTradeSched.index)):
             away = postTradeSched.iloc[j].loc['team']
             home = postTradeSched.iloc[j].loc['opponent']
             query = """
-                    insert into availData2
+                    insert into availData
                     (nbaID, name, team, gameDate, home, away)
                     values ({0}, "{1}", "{2}", "{3}", "{4}", "{5}")
                     """.format(nbaID, name, newTeam, 
@@ -162,10 +162,35 @@ def correctForTrades(cnx):
                         home,
                         away
                         )
-            print(query)
+            try:
+                cursor.execute(query)
+            except:
+                print(query)
+        cnx.commit()
 
     return "success!"
-
+def correctAlecBurks (cnx):
+    cursor = cnx.cursor()
+    ## gather nba games schedule 2019-2020:
+    query = """
+            select distinct(date), team, opponent, homeAway from boxscores where date > '2019-10-01' and homeAway = '@';
+            """
+    schedule = pd.read_sql_query(query,cnx)
+    for i in range (len(schedule.index)):
+        if schedule.iloc[i].loc['team'] == 'GSW':
+            query = """
+                    update availData set home, away, gameDate values ("{0}", "{1}", "{2}") where nbaID =  202692 and date < '2020-02-11' 
+                     """.format(schedule.iloc[i].loc['team'], schedule.iloc[i].loc['opponent'], schedule.iloc[i].loc['date'])
+            cursor.execute(query)
+            # print(query)
+        elif schedule.iloc[i].loc['opponent'] == 'GSW':
+            query = """
+                    update availData set home, away, gameDate values ("{0}", "{1}", "{2}") where nbaID = 202692 and date < '2020-02-11'; 
+                     """.format(schedule.iloc[i].loc['team'], schedule.iloc[i].loc['opponent'], schedule.iloc[i].loc['date'])
+            cursor.execute(query)
+            # print(query)
+    cnx.commit()
+    return "success!"
 def teamMap(posTeam):
 
     ## maps teamPos data to boxscore team abbreviations
