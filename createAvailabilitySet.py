@@ -121,14 +121,14 @@ def correctForTrades(cnx):
     print(schedule.head())
 
     query = """
-            select b1.nbaID, min(b2.date) as d2, b1.team, b1.name
+            select b1.nbaID, min(b2.date) as d2, b2.team, b1.name
             from boxscores as b1
             inner join boxscores as b2
             on b1.nbaID = b2.nbaID 
             and b1.team != b2.team
             and b1.date > '{0}'
             where  b1.date < b2.date
-            group by b1.nbaID, b1.team, b1.name
+            group by b1.nbaID, b2.team, b1.name
             """.format('2019-10-01')
     datesTraded = pd.read_sql_query(query,cnx)
 
