@@ -107,7 +107,9 @@ def addGames(cnx):
                     print(schedule.iloc[i].loc['away'])
     cnx.commit()
     return "success!"
-
+def getLatestArticles(cnx):
+    cursor=cnx.cursor()
+    return "success!"
 def correctForTrades(cnx):
     cursor = cnx.cursor()
     ## gather nba games schedule 2019-2020:
