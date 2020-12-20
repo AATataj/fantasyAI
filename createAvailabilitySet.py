@@ -109,6 +109,29 @@ def addGames(cnx):
     return "success!"
 def getLatestArticles(cnx):
     cursor=cnx.cursor()
+    query = """
+            select nbaID, gameDate from availData
+            """
+    playersAndDates = pd.read_sql_query(query,cnx)
+    playersAndDates['recentTitle'] = ""
+    playersAndDates['recentContent'] = ""
+    for i in range (len(playersAndDates.index)):
+        query = """
+                select date, title, content 
+                from rotoworld 
+                where nbaID = {0} and date < {1}
+                order by date desc
+                limit 1 
+                """.format(playersAndDates.iloc[i].loc['nbaID'], playersAndDates.iloc[i].loc['gameDate'])
+        cursor.execute(query)
+        result = cursor.fetchone(0)
+        insertQuery = """
+                      insert into availData (recentTitle, recentContent, reportDate)
+                      values ("{0}", "{1}", "{2}")
+                      """.format(result[1], result[2], result[0])
+        cursor.execute(insertQuery)
+        cnx.commit()
+
     return "success!"
 def correctForTrades(cnx):
     cursor = cnx.cursor()
