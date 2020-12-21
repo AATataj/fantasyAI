@@ -27,3 +27,11 @@ and b1.date > '2019-10-01'
 where  b1.date < b2.date
 group by b1.name, b1.team, b1.nbaID
 
+select b1.nbaID, b1.name as n, min(b2.date) as d2, b1.posTeam
+from rotoworld as b1
+inner join rotoworld as b2
+on b1.nbaID = b2.nbaID 
+and b1.posTeam != b2.posteam
+where  b1.date < b2.date
+group by b1.name, b1.posTeam, b1.nbaID
+

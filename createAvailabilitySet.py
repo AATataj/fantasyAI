@@ -2,7 +2,7 @@
 # create an availability table containing:
 # player name, id, current team, date and :
 # latest article and article title given the latest game date of current team
-
+import sys
 import mysql.connector
 import datetime
 import pandas as pd
@@ -113,25 +113,34 @@ def getLatestArticles(cnx):
             select nbaID, gameDate from availData
             """
     playersAndDates = pd.read_sql_query(query,cnx)
-    playersAndDates['recentTitle'] = ""
-    playersAndDates['recentContent'] = ""
     for i in range (len(playersAndDates.index)):
         query = """
                 select date, title, content 
                 from rotoworld 
-                where nbaID = {0} and date < {1}
+                where nbaID = {0} and date < '{1}'
                 order by date desc
                 limit 1 
                 """.format(playersAndDates.iloc[i].loc['nbaID'], playersAndDates.iloc[i].loc['gameDate'])
         cursor.execute(query)
-        result = cursor.fetchone(0)
-        insertQuery = """
-                      insert into availData (recentTitle, recentContent, reportDate)
-                      values ("{0}", "{1}", "{2}")
-                      """.format(result[1], result[2], result[0])
-        cursor.execute(insertQuery)
-        cnx.commit()
-
+        result = cursor.fetchone()
+        #print (query)
+        if result != None:
+            title = result[1].replace('"', "'")
+            content = result[2].replace('"', "'")
+            insertQuery = """
+                        update availData set 
+                        recentTitle = "{0}", recentContent = "{1}", reportDate = "{2}"
+                        where nbaID = {3} and gameDate = '{4}'
+                        """.format(title, content, result[0], 
+                            playersAndDates.iloc[i].loc['nbaID'],playersAndDates.iloc[i].loc['gameDate'])
+            #print(insertQuery)
+            try:
+                cursor.execute(insertQuery)
+            except :
+                e = sys.exc_info()[0]
+                print(e)
+                print(insertQuery)
+    cnx.commit()
     return "success!"
 def correctForTrades(cnx):
     cursor = cnx.cursor()
