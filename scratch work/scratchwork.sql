@@ -35,3 +35,14 @@ and b1.posTeam != b2.posteam
 where  b1.date < b2.date
 group by b1.name, b1.posTeam, b1.nbaID
 
+/*
+set played column in availData
+*/
+
+update availData as A
+inner join boxscores 
+on A.nbaID=boxscores.nbaID and A.gameDate = boxscores.date
+set A.played = 1
+
+
+
