@@ -54,7 +54,6 @@ def createAvailTable(startYear, cnx):
             print(result[6])
     cnx.commit()
     return "success!"
-    
 def addGames(cnx):
     # this function creates a new mirrored table availData
     # and it creates an entry for each player for each game
@@ -297,3 +296,22 @@ def teamMap(posTeam):
     elif 'WASHINGTON WIZARDS' in posTeam:
         out = 'WAS'
     return out
+def updateTradedColumn(cnx):
+    cursor=cnx.cursor()
+    query = """
+            update rotoworld
+            inner join 
+            (select b1.nbaID, b1.name as n, min(b2.date) as d2, b1.posTeam
+            from rotoworld as b1
+            inner join rotoworld as b2
+            on b1.nbaID = b2.nbaID 
+            and b1.posTeam != b2.posteam
+            where  b1.date < b2.date
+            group by b1.name, b1.posTeam, b1.nbaID) as t1
+            on t1.d2 = rotoworld.date and t1.nbaID = rotoworld.nbaID 
+            set traded =1
+            """
+    cursor.execute(query)
+    cnx.commit()
+    return "success!"
+

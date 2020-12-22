@@ -35,6 +35,11 @@ and b1.posTeam != b2.posteam
 where  b1.date < b2.date
 group by b1.name, b1.posTeam, b1.nbaID
 
+select count(*) 
+from boxscores as t1
+inner join boxscores as t2
+on t1.nbaID = t2.nbaID and t1.date = t2.date 
+
 /*
 set played column in availData
 */
@@ -60,4 +65,11 @@ group by b1.name, b1.posTeam, b1.nbaID) as t1
 on t1.d2 = rotoworld.date and t1.nbaID = rotoworld.nbaID 
 set traded =1
 
+/*
+clean up duplicate entries in boxscores:
+*/
+
+delete b1 from boxscores as b1
+inner join boxscores as b2
+on b1.nbaID = b2.nbaID and b1.date = b2.date and b1.id > b2.id
 
