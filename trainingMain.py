@@ -4,7 +4,7 @@ from league import league
 from matchup import matchup
 from rotoworldScraper import updateRoto
 from linearRegression import linReg
-from sentiment import createSentimentData
+from availSentiment import trainSentimentAvail, trainSentimentTrades
 from compileRosters import setRostersRAM
 from compileRosters import updateRostersRAM
 from createAvailabilitySet import createAvailTable, addGames, correctForTrades, correctAlecBurks, getLatestArticles
@@ -29,7 +29,8 @@ print("****************")
 #addGames(cnx)
 #print(correctForTrades(cnx))
 #print(correctAlecBurks(cnx))
-print(getLatestArticles(cnx))
+#print(getLatestArticles(cnx))
+print(trainSentimentTrades(cnx))
 #playerList = setRostersRAM(2019, cnx)
 
 #playerList = updateRostersRAM(playerList, '2020-02-01', cnx)
